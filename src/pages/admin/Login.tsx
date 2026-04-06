@@ -4,24 +4,29 @@ import { useAuth } from '../../context/AuthContext';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = (location.state as any)?.from?.pathname || '/admin';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (login(username, password)) {
+    setSubmitting(true);
+    const success = await login(email, password);
+    setSubmitting(false);
+
+    if (success) {
       navigate(from, { replace: true });
     } else {
-      setError('Invalid username or password');
+      setError('Invalid admin credentials');
     }
   };
 
@@ -52,16 +57,16 @@ const Login = () => {
 
             <div>
               <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">
-                Username
+                Admin Email
               </label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-muted" />
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
-                  placeholder="Enter username"
+                  placeholder="admin@metabuildrealty.com"
                   required
                 />
               </div>
@@ -93,9 +98,10 @@ const Login = () => {
 
             <button
               type="submit"
+              disabled={submitting}
               className="w-full py-3 bg-luxury-gold text-luxury-black font-medium hover:bg-luxury-gold-light transition-colors"
             >
-              Login
+              {submitting ? 'Signing in...' : 'Login'}
             </button>
           </form>
         </div>
