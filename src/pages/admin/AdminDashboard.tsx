@@ -52,17 +52,25 @@ const AdminDashboard = () => {
   };
 
   const handleSave = async () => {
-    await saveSiteSettings(settings);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await saveSiteSettings(settings);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to save site settings.');
+    }
   };
 
   const handleReset = async () => {
     if (confirm('Are you sure you want to reset all settings to default? This cannot be undone.')) {
-      await resetToDefaults();
-      const defaults = await getSiteSettings();
-      setSettings(defaults);
-      setLogoPreview('');
+      try {
+        await resetToDefaults();
+        const defaults = await getSiteSettings();
+        setSettings(defaults);
+        setLogoPreview('');
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to reset site settings.');
+      }
     }
   };
 

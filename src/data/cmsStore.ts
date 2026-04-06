@@ -67,6 +67,21 @@ const STORAGE_KEYS = {
   PROJECTS: 'metabuild_projects',
 };
 
+const getAuthSession = async () => {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    throw new Error(`Unable to verify admin session: ${error.message}`);
+  }
+  return data.session;
+};
+
+const requireAuthenticatedSession = async () => {
+  const session = await getAuthSession();
+  if (!session) {
+    throw new Error('Please log in with a valid admin account to save CMS changes.');
+  }
+};
+
 const toProject = (row: any): Project => ({
   id: row.id,
   name: row.name,
@@ -243,6 +258,7 @@ export const getSiteSettings = async (): Promise<SiteSettings> => {
 };
 
 export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise<SiteSettings> => {
+  await requireAuthenticatedSession();
   const current = await getSiteSettings();
   const updated = { ...current, ...settings };
 
@@ -250,11 +266,11 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
     .from('site_settings')
     .upsert({ id: 'default', data: updated }, { onConflict: 'id' });
 
-  writeLocalSettings(updated);
   if (error) {
-    console.warn('Failed to sync settings to Supabase, kept local copy.', error.message);
+    throw new Error(`Failed to save settings to backend: ${error.message}`);
   }
 
+  writeLocalSettings(updated);
   return updated;
 };
 
@@ -271,18 +287,16 @@ export const getProjects = async (): Promise<Project[]> => {
 };
 
 export const addProject = async (project: Project): Promise<Project[]> => {
+  await requireAuthenticatedSession();
   const { error } = await supabase.from('projects').upsert(fromProject(project), { onConflict: 'id' });
   if (error) {
-    console.warn('Failed to create project in Supabase, using local fallback.', error.message);
-    const local = readLocalProjects();
-    local.push(project);
-    writeLocalProjects(local);
-    return local;
+    throw new Error(`Failed to create project in backend: ${error.message}`);
   }
   return getProjects();
 };
 
 export const updateProject = async (id: string, updates: Partial<Project>): Promise<Project[]> => {
+  await requireAuthenticatedSession();
   const payload: any = {};
   if (updates.name !== undefined) payload.name = updates.name;
   if (updates.slug !== undefined) payload.slug = updates.slug;
@@ -299,40 +313,45 @@ export const updateProject = async (id: string, updates: Partial<Project>): Prom
 
   const { error } = await supabase.from('projects').update(payload).eq('id', id);
   if (error) {
-    console.warn('Failed to update project in Supabase, using local fallback.', error.message);
-    const local = readLocalProjects();
-    const index = local.findIndex((p) => p.id === id);
-    if (index !== -1) {
-      local[index] = { ...local[index], ...updates };
-      writeLocalProjects(local);
-    }
-    return local;
+    throw new Error(`Failed to update project in backend: ${error.message}`);
   }
 
   return getProjects();
 };
 
 export const deleteProject = async (id: string): Promise<Project[]> => {
+  await requireAuthenticatedSession();
   const { error } = await supabase.from('projects').delete().eq('id', id);
 
   if (error) {
-    console.warn('Failed to delete project in Supabase, using local fallback.', error.message);
-    const local = readLocalProjects().filter((project) => project.id !== id);
-    writeLocalProjects(local);
-    return local;
+    throw new Error(`Failed to delete project in backend: ${error.message}`);
   }
 
   return getProjects();
 };
 
 export const resetToDefaults = async (): Promise<void> => {
+  await requireAuthenticatedSession();
   writeLocalSettings(defaultSiteSettings);
   writeLocalProjects(getDefaultProjects());
 
   const defaults = getDefaultProjects();
-  await supabase.from('site_settings').upsert({ id: 'default', data: defaultSiteSettings }, { onConflict: 'id' });
-  await supabase.from('projects').delete().not('id', 'is', null);
-  await supabase.from('projects').upsert(defaults.map(fromProject));
+  const { error: settingsError } = await supabase
+    .from('site_settings')
+    .upsert({ id: 'default', data: defaultSiteSettings }, { onConflict: 'id' });
+  if (settingsError) {
+    throw new Error(`Failed to reset settings in backend: ${settingsError.message}`);
+  }
+
+  const { error: deleteProjectsError } = await supabase.from('projects').delete().not('id', 'is', null);
+  if (deleteProjectsError) {
+    throw new Error(`Failed to reset projects in backend: ${deleteProjectsError.message}`);
+  }
+
+  const { error: seedProjectsError } = await supabase.from('projects').upsert(defaults.map(fromProject));
+  if (seedProjectsError) {
+    throw new Error(`Failed to seed default projects in backend: ${seedProjectsError.message}`);
+  }
 };
 
 export const getProjectBySlug = async (slug: string): Promise<Project | undefined> => {
