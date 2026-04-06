@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import { Project } from '../data/projects';
+import type { Project } from '../data/cmsStore';
 
 interface ProjectCardProps {
   project: Project;
