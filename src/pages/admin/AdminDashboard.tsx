@@ -63,7 +63,6 @@ const AdminDashboard = () => {
   const handleSave = async () => {
     try {
       await saveSiteSettings(settings);
-      setBackendStatus(await getCmsBackendStatus());
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
@@ -75,10 +74,9 @@ const AdminDashboard = () => {
     if (confirm('Are you sure you want to reset all settings to default? This cannot be undone.')) {
       try {
         await resetToDefaults();
-        const [defaults, status] = await Promise.all([getSiteSettings(), getCmsBackendStatus()]);
+        const defaults = await getSiteSettings();
         setSettings(defaults);
         setLogoPreview('');
-        setBackendStatus(status);
       } catch (error) {
         alert(error instanceof Error ? error.message : 'Failed to reset site settings.');
       }
