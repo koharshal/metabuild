@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabase';
+
 export interface Project {
   id: string;
   name: string;
@@ -19,7 +21,6 @@ export interface Project {
   pdfSlug?: string;
 }
 
-// Site settings type
 export type SiteSettings = {
   companyName: string;
   tagline: string;
@@ -39,19 +40,21 @@ export type SiteSettings = {
   socialLinkedin: string;
 };
 
-// Default site settings
 export const defaultSiteSettings: SiteSettings = {
   companyName: 'Metabuild Realty',
   tagline: 'Premium Real Estate Developer',
   logo: '',
-  heroTitle: 'Building Tomorrow\'s Landmarks',
-  heroSubtitle: 'Crafting exceptional living and working spaces across Nashik and Maharashtra. Where vision meets excellence.',
+  heroTitle: "Building Tomorrow's Landmarks",
+  heroSubtitle:
+    'Crafting exceptional living and working spaces across Nashik and Maharashtra. Where vision meets excellence.',
   heroTagline: 'Premium Real Estate Developer',
   aboutTitle: 'Excellence in Every Structure',
-  aboutDescription: 'Metabuild Realty has been transforming skylines across Nashik and Maharashtra for over 15 years. Our commitment to quality, innovation, and customer satisfaction has made us one of the most trusted names in real estate.',
+  aboutDescription:
+    'Metabuild Realty has been transforming skylines across Nashik and Maharashtra for over 15 years. Our commitment to quality, innovation, and customer satisfaction has made us one of the most trusted names in real estate.',
   ctaTitle: 'Ready to Find Your Dream Property?',
   ctaDescription: 'Contact us today to explore our projects and find the perfect property for your needs',
-  footerDescription: 'Building dreams with quality construction and innovative real estate solutions across Nashik and surrounding areas. Creating landmarks that define skylines.',
+  footerDescription:
+    'Building dreams with quality construction and innovative real estate solutions across Nashik and surrounding areas. Creating landmarks that define skylines.',
   contactEmail: 'info@metabuildrealty.com',
   contactPhone: '+91 98765 43210',
   contactAddress: 'Metabuild Realty, Nashik, Maharashtra',
@@ -59,73 +62,43 @@ export const defaultSiteSettings: SiteSettings = {
   socialLinkedin: '#',
 };
 
-// Local storage keys
 const STORAGE_KEYS = {
   SITE_SETTINGS: 'metabuild_settings',
   PROJECTS: 'metabuild_projects',
 };
 
-// Get site settings from localStorage or use defaults
-export const getSiteSettings = (): SiteSettings => {
-  const stored = localStorage.getItem(STORAGE_KEYS.SITE_SETTINGS);
-  if (stored) {
-    return { ...defaultSiteSettings, ...JSON.parse(stored) };
-  }
-  return defaultSiteSettings;
-};
+const toProject = (row: any): Project => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+  category: String(row.category || 'residential').toLowerCase() as Project['category'],
+  status: String(row.status || 'upcoming').toLowerCase() as Project['status'],
+  location: row.location || '',
+  description: row.description || '',
+  specs: (row.specs as Project['specs']) || {},
+  highlights: (row.highlights as string[]) || [],
+  coverImage: row.cover_image || '',
+  gallery: (row.gallery as string[]) || [],
+  brochure: row.brochure || '',
+  pdfSlug: row.pdf_slug || '',
+});
 
-// Save site settings to localStorage
-export const saveSiteSettings = (settings: Partial<SiteSettings>): SiteSettings => {
-  const current = getSiteSettings();
-  const updated = { ...current, ...settings };
-  localStorage.setItem(STORAGE_KEYS.SITE_SETTINGS, JSON.stringify(updated));
-  return updated;
-};
+const fromProject = (project: Project) => ({
+  id: project.id,
+  name: project.name,
+  slug: project.slug,
+  category: project.category,
+  status: project.status,
+  location: project.location,
+  description: project.description,
+  specs: project.specs,
+  highlights: project.highlights,
+  cover_image: project.coverImage,
+  gallery: project.gallery,
+  brochure: project.brochure,
+  pdf_slug: project.pdfSlug || null,
+});
 
-// Get projects from localStorage or use defaults
-export const getProjects = (): Project[] => {
-  const stored = localStorage.getItem(STORAGE_KEYS.PROJECTS);
-  if (stored) {
-    return JSON.parse(stored);
-  }
-  // Initialize with default projects
-  const defaultProjects = getDefaultProjects();
-  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(defaultProjects));
-  return defaultProjects;
-};
-
-// Save projects to localStorage
-export const saveProjects = (projects: Project[]) => {
-  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects));
-};
-
-// Add a new project
-export const addProject = (project: Project) => {
-  const projects = getProjects();
-  projects.push(project);
-  saveProjects(projects);
-  return projects;
-};
-
-// Update an existing project
-export const updateProject = (id: string, updates: Partial<Project>) => {
-  const projects = getProjects();
-  const index = projects.findIndex(p => p.id === id);
-  if (index !== -1) {
-    projects[index] = { ...projects[index], ...updates };
-    saveProjects(projects);
-  }
-  return projects;
-};
-
-// Delete a project
-export const deleteProject = (id: string) => {
-  const projects = getProjects().filter(p => p.id !== id);
-  saveProjects(projects);
-  return projects;
-};
-
-// Get default projects
 const getDefaultProjects = (): Project[] => [
   {
     id: 'skyline-residence',
@@ -134,12 +107,18 @@ const getDefaultProjects = (): Project[] => [
     category: 'residential',
     status: 'completed',
     location: 'Nashik',
-    description: 'Skyline Residence is a premium residential complex featuring modern architecture and luxurious amenities. Located in the heart of Nashik, this G+12 storied building offers residents a perfect blend of comfort and elegance.',
+    description:
+      'Skyline Residence is a premium residential complex featuring modern architecture and luxurious amenities. Located in the heart of Nashik, this G+12 storied building offers residents a perfect blend of comfort and elegance.',
     specs: { area: '45,000 sq ft', units: '48 units', floors: 'G+12' },
-    highlights: ['Strategic location in Nashik city center', 'Modern architecture with RCC frame structure', 'Spacious 2 & 3 BHK apartments', '24/7 security with CCTV surveillance'],
+    highlights: [
+      'Strategic location in Nashik city center',
+      'Modern architecture with RCC frame structure',
+      'Spacious 2 & 3 BHK apartments',
+      '24/7 security with CCTV surveillance',
+    ],
     coverImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
     gallery: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80'],
-    brochure: '/brochures/skyline-residence.pdf'
+    brochure: '/brochures/skyline-residence.pdf',
   },
   {
     id: 'greenview-apartments',
@@ -148,12 +127,17 @@ const getDefaultProjects = (): Project[] => [
     category: 'residential',
     status: 'completed',
     location: 'Nashik',
-    description: 'Greenview Apartments is a serene residential destination nestled in a pollution-free zone of Nashik.',
+    description:
+      'Greenview Apartments is a serene residential destination nestled in a pollution-free zone of Nashik.',
     specs: { area: '38,000 sq ft', units: '36 units', floors: 'G+10' },
-    highlights: ['Eco-friendly sustainable design', 'Proximity to schools and hospitals', 'Quality fixtures and fittings'],
+    highlights: [
+      'Eco-friendly sustainable design',
+      'Proximity to schools and hospitals',
+      'Quality fixtures and fittings',
+    ],
     coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
     gallery: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'],
-    brochure: '/brochures/greenview-apartments.pdf'
+    brochure: '/brochures/greenview-apartments.pdf',
   },
   {
     id: 'urban-hub-coworking',
@@ -162,12 +146,17 @@ const getDefaultProjects = (): Project[] => [
     category: 'commercial',
     status: 'completed',
     location: 'Nashik',
-    description: 'UrbanHub Coworking is a state-of-the-art commercial workspace designed for modern professionals and businesses.',
+    description:
+      'UrbanHub Coworking is a state-of-the-art commercial workspace designed for modern professionals and businesses.',
     specs: { area: '25,000 sq ft', floors: 'G+4' },
-    highlights: ['High-speed fiber internet connectivity', 'Fully furnished workstations', 'Conference and meeting rooms'],
+    highlights: [
+      'High-speed fiber internet connectivity',
+      'Fully furnished workstations',
+      'Conference and meeting rooms',
+    ],
     coverImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80',
     gallery: ['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80'],
-    brochure: '/brochures/urban-hub-coworking.pdf'
+    brochure: '/brochures/urban-hub-coworking.pdf',
   },
   {
     id: 'nashik-fabricated-warehouse',
@@ -176,12 +165,17 @@ const getDefaultProjects = (): Project[] => [
     category: 'industrial',
     status: 'completed',
     location: 'Nashik',
-    description: 'A massive 40,000 sq ft fabricated warehouse facility strategically located in Nashik industrial zone.',
+    description:
+      'A massive 40,000 sq ft fabricated warehouse facility strategically located in Nashik industrial zone.',
     specs: { area: '40,000 sq ft', floors: 'Ground Floor' },
-    highlights: ['40,000 sq ft of prime industrial space', 'Strategic location in Nashik industrial area', 'High clear height for maximum stacking'],
+    highlights: [
+      '40,000 sq ft of prime industrial space',
+      'Strategic location in Nashik industrial area',
+      'High clear height for maximum stacking',
+    ],
     coverImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
     gallery: ['https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80'],
-    brochure: '/brochures/nashik-warehouse.pdf'
+    brochure: '/brochures/nashik-warehouse.pdf',
   },
   {
     id: 'igatpuri-luxury-villas',
@@ -190,29 +184,173 @@ const getDefaultProjects = (): Project[] => [
     category: 'residential',
     status: 'upcoming',
     location: 'Igatpuri',
-    description: 'Igatpuri Luxury Villas is an upcoming premium residential project set in the serene hills of Igatpuri.',
+    description:
+      'Igatpuri Luxury Villas is an upcoming premium residential project set in the serene hills of Igatpuri.',
     specs: { area: '3,500 sq ft', units: '18 villas', floors: 'Ground + 2', rooms: '4 BHK' },
     highlights: ['Scenic location in Igatpuri hills', 'Luxurious 4 BHK villas', 'Private gardens for each villa'],
     coverImage: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80',
     gallery: ['https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80'],
-    brochure: '/brochures/igatpuri-villas.pdf'
-  }
+    brochure: '/brochures/igatpuri-villas.pdf',
+  },
 ];
 
-// Reset to default data
-export const resetToDefaults = () => {
-  localStorage.setItem(STORAGE_KEYS.SITE_SETTINGS, JSON.stringify(defaultSiteSettings));
-  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(getDefaultProjects()));
+const readLocalSettings = (): SiteSettings => {
+  const stored = localStorage.getItem(STORAGE_KEYS.SITE_SETTINGS);
+  if (!stored) return defaultSiteSettings;
+  try {
+    return { ...defaultSiteSettings, ...JSON.parse(stored) };
+  } catch {
+    return defaultSiteSettings;
+  }
 };
 
-// Get project by PDF slug
-export const getProjectBySlug = (slug: string): Project | undefined => {
-  const projects = getProjects();
-  return projects.find(p => p.pdfSlug === slug);
+const writeLocalSettings = (settings: SiteSettings) => {
+  localStorage.setItem(STORAGE_KEYS.SITE_SETTINGS, JSON.stringify(settings));
 };
 
-// Get project by ID
-export const getProjectById = (id: string): Project | undefined => {
-  const projects = getProjects();
-  return projects.find(p => p.id === id);
+const readLocalProjects = (): Project[] => {
+  const stored = localStorage.getItem(STORAGE_KEYS.PROJECTS);
+  if (!stored) {
+    const defaults = getDefaultProjects();
+    localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(defaults));
+    return defaults;
+  }
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return getDefaultProjects();
+  }
+};
+
+const writeLocalProjects = (projects: Project[]) => {
+  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects));
+};
+
+export const getSiteSettings = async (): Promise<SiteSettings> => {
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('data')
+    .eq('id', 'default')
+    .single();
+
+  if (error) {
+    return readLocalSettings();
+  }
+
+  const merged = { ...defaultSiteSettings, ...((data?.data as Partial<SiteSettings>) || {}) };
+  writeLocalSettings(merged);
+  return merged;
+};
+
+export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise<SiteSettings> => {
+  const current = await getSiteSettings();
+  const updated = { ...current, ...settings };
+
+  const { error } = await supabase
+    .from('site_settings')
+    .upsert({ id: 'default', data: updated }, { onConflict: 'id' });
+
+  writeLocalSettings(updated);
+  if (error) {
+    console.warn('Failed to sync settings to Supabase, kept local copy.', error.message);
+  }
+
+  return updated;
+};
+
+export const getProjects = async (): Promise<Project[]> => {
+  const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
+
+  if (error || !data) {
+    return readLocalProjects();
+  }
+
+  const projects = data.map(toProject);
+  writeLocalProjects(projects);
+  return projects;
+};
+
+export const addProject = async (project: Project): Promise<Project[]> => {
+  const { error } = await supabase.from('projects').upsert(fromProject(project), { onConflict: 'id' });
+  if (error) {
+    console.warn('Failed to create project in Supabase, using local fallback.', error.message);
+    const local = readLocalProjects();
+    local.push(project);
+    writeLocalProjects(local);
+    return local;
+  }
+  return getProjects();
+};
+
+export const updateProject = async (id: string, updates: Partial<Project>): Promise<Project[]> => {
+  const payload: any = {};
+  if (updates.name !== undefined) payload.name = updates.name;
+  if (updates.slug !== undefined) payload.slug = updates.slug;
+  if (updates.category !== undefined) payload.category = updates.category;
+  if (updates.status !== undefined) payload.status = updates.status;
+  if (updates.location !== undefined) payload.location = updates.location;
+  if (updates.description !== undefined) payload.description = updates.description;
+  if (updates.specs !== undefined) payload.specs = updates.specs;
+  if (updates.highlights !== undefined) payload.highlights = updates.highlights;
+  if (updates.coverImage !== undefined) payload.cover_image = updates.coverImage;
+  if (updates.gallery !== undefined) payload.gallery = updates.gallery;
+  if (updates.brochure !== undefined) payload.brochure = updates.brochure;
+  if (updates.pdfSlug !== undefined) payload.pdf_slug = updates.pdfSlug;
+
+  const { error } = await supabase.from('projects').update(payload).eq('id', id);
+  if (error) {
+    console.warn('Failed to update project in Supabase, using local fallback.', error.message);
+    const local = readLocalProjects();
+    const index = local.findIndex((p) => p.id === id);
+    if (index !== -1) {
+      local[index] = { ...local[index], ...updates };
+      writeLocalProjects(local);
+    }
+    return local;
+  }
+
+  return getProjects();
+};
+
+export const deleteProject = async (id: string): Promise<Project[]> => {
+  const { error } = await supabase.from('projects').delete().eq('id', id);
+
+  if (error) {
+    console.warn('Failed to delete project in Supabase, using local fallback.', error.message);
+    const local = readLocalProjects().filter((project) => project.id !== id);
+    writeLocalProjects(local);
+    return local;
+  }
+
+  return getProjects();
+};
+
+export const resetToDefaults = async (): Promise<void> => {
+  writeLocalSettings(defaultSiteSettings);
+  writeLocalProjects(getDefaultProjects());
+
+  const defaults = getDefaultProjects();
+  await supabase.from('site_settings').upsert({ id: 'default', data: defaultSiteSettings }, { onConflict: 'id' });
+  await supabase.from('projects').delete().not('id', 'is', null);
+  await supabase.from('projects').upsert(defaults.map(fromProject));
+};
+
+export const getProjectBySlug = async (slug: string): Promise<Project | undefined> => {
+  const { data, error } = await supabase.from('projects').select('*').eq('pdf_slug', slug).maybeSingle();
+
+  if (error || !data) {
+    return readLocalProjects().find((project) => project.pdfSlug === slug);
+  }
+
+  return toProject(data);
+};
+
+export const getProjectById = async (id: string): Promise<Project | undefined> => {
+  const { data, error } = await supabase.from('projects').select('*').eq('id', id).maybeSingle();
+
+  if (error || !data) {
+    return readLocalProjects().find((project) => project.id === id);
+  }
+
+  return toProject(data);
 };

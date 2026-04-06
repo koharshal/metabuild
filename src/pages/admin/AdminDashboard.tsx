@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Save, RotateCcw, Image, Upload, X, Copy, Check } from 'lucide-react';
 import AdminLayout from './AdminLayout';
-import { getSiteSettings, saveSiteSettings, resetToDefaults } from '../../data/cmsStore';
+import { defaultSiteSettings, getSiteSettings, saveSiteSettings, resetToDefaults } from '../../data/cmsStore';
 
 const AdminDashboard = () => {
-  const [settings, setSettings] = useState(getSiteSettings());
+  const [settings, setSettings] = useState(defaultSiteSettings);
   const [saved, setSaved] = useState(false);
-  const [logoPreview, setLogoPreview] = useState(settings.logo || '');
+  const [logoPreview, setLogoPreview] = useState('');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getSiteSettings();
+      setSettings(data);
+      setLogoPreview(data.logo || '');
+    };
+
+    load();
+  }, []);
 
   const handleChange = (field: string, value: string) => {
     setSettings((prev: any) => ({ ...prev, [field]: value }));
@@ -41,16 +51,17 @@ const AdminDashboard = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSave = () => {
-    saveSiteSettings(settings);
+  const handleSave = async () => {
+    await saveSiteSettings(settings);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (confirm('Are you sure you want to reset all settings to default? This cannot be undone.')) {
-      resetToDefaults();
-      setSettings(getSiteSettings());
+      await resetToDefaults();
+      const defaults = await getSiteSettings();
+      setSettings(defaults);
       setLogoPreview('');
     }
   };
