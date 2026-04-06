@@ -10,8 +10,13 @@ const Home = () => {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    setSettings(getSiteSettings());
-    setProjects(getProjects());
+    const loadData = async () => {
+      const [siteSettings, siteProjects] = await Promise.all([getSiteSettings(), getProjects()]);
+      setSettings(siteSettings);
+      setProjects(siteProjects);
+    };
+
+    loadData();
   }, []);
 
   if (!settings) {

@@ -1,9 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { getSiteSettings } from '../data/cmsStore';
+import { defaultSiteSettings, getSiteSettings } from '../data/cmsStore';
 
 const About = () => {
-  const settings = getSiteSettings();
+  const [settings, setSettings] = useState(defaultSiteSettings);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getSiteSettings();
+      setSettings(data);
+    };
+
+    load();
+  }, []);
   const stats = [
     { value: '50+', label: 'Projects Completed' },
     { value: '15+', label: 'Years Experience' },
