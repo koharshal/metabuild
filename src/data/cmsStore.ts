@@ -67,30 +67,12 @@ const STORAGE_KEYS = {
   PROJECTS: 'metabuild_projects',
 };
 
-const TABLES = {
-  SITE_SETTINGS: (import.meta.env.VITE_SUPABASE_SITE_SETTINGS_TABLE as string | undefined) || 'site_settings',
-  PROJECTS: (import.meta.env.VITE_SUPABASE_PROJECTS_TABLE as string | undefined) || 'projects',
-};
-
-const CMS_SETUP_SQL_PATH = '/supabase-setup.sql';
-
 const getAuthSession = async () => {
   const { data, error } = await supabase.auth.getSession();
   if (error) {
     throw new Error(`Unable to verify admin session: ${error.message}`);
   }
   return data.session;
-};
-
-const isMissingTableError = (error: { code?: string; message?: string } | null) =>
-  Boolean(error?.code === 'PGRST205' || error?.message?.toLowerCase().includes('could not find the table'));
-
-const formatBackendError = (action: string, error: { message?: string; code?: string } | null) => {
-  const details = error?.message || 'Unknown backend error';
-  if (isMissingTableError(error)) {
-    return `${action} failed because CMS tables are not present in Supabase (${TABLES.SITE_SETTINGS}/${TABLES.PROJECTS}). Run ${CMS_SETUP_SQL_PATH} in Supabase SQL Editor, then retry.`;
-  }
-  return `${action}: ${details}`;
 };
 
 const requireAuthenticatedSession = async () => {
@@ -286,7 +268,7 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
     .upsert({ id: 'default', data: updated }, { onConflict: 'id' });
 
   if (error) {
-    throw new Error(formatBackendError('Failed to save settings to backend', error));
+    throw new Error(`Failed to save settings to backend: ${error.message}`);
   }
 
   writeLocalSettings(updated);
@@ -310,9 +292,9 @@ export const getProjects = async (): Promise<Project[]> => {
 
 export const addProject = async (project: Project): Promise<Project[]> => {
   await requireAuthenticatedSession();
-  const { error } = await supabase.from(TABLES.PROJECTS).upsert(fromProject(project), { onConflict: 'id' });
+  const { error } = await supabase.from('projects').upsert(fromProject(project), { onConflict: 'id' });
   if (error) {
-    throw new Error(formatBackendError('Failed to create project in backend', error));
+    throw new Error(`Failed to create project in backend: ${error.message}`);
   }
   return getProjects();
 };
@@ -335,7 +317,7 @@ export const updateProject = async (id: string, updates: Partial<Project>): Prom
 
   const { error } = await supabase.from(TABLES.PROJECTS).update(payload).eq('id', id);
   if (error) {
-    throw new Error(formatBackendError('Failed to update project in backend', error));
+    throw new Error(`Failed to update project in backend: ${error.message}`);
   }
 
   return getProjects();
@@ -343,10 +325,10 @@ export const updateProject = async (id: string, updates: Partial<Project>): Prom
 
 export const deleteProject = async (id: string): Promise<Project[]> => {
   await requireAuthenticatedSession();
-  const { error } = await supabase.from(TABLES.PROJECTS).delete().eq('id', id);
+  const { error } = await supabase.from('projects').delete().eq('id', id);
 
   if (error) {
-    throw new Error(formatBackendError('Failed to delete project in backend', error));
+    throw new Error(`Failed to delete project in backend: ${error.message}`);
   }
 
   return getProjects();
@@ -359,51 +341,21 @@ export const resetToDefaults = async (): Promise<void> => {
 
   const defaults = getDefaultProjects();
   const { error: settingsError } = await supabase
-    .from(TABLES.SITE_SETTINGS)
+    .from('site_settings')
     .upsert({ id: 'default', data: defaultSiteSettings }, { onConflict: 'id' });
   if (settingsError) {
-    throw new Error(formatBackendError('Failed to reset settings in backend', settingsError));
+    throw new Error(`Failed to reset settings in backend: ${settingsError.message}`);
   }
 
-  const { error: deleteProjectsError } = await supabase.from(TABLES.PROJECTS).delete().not('id', 'is', null);
+  const { error: deleteProjectsError } = await supabase.from('projects').delete().not('id', 'is', null);
   if (deleteProjectsError) {
-    throw new Error(formatBackendError('Failed to reset projects in backend', deleteProjectsError));
+    throw new Error(`Failed to reset projects in backend: ${deleteProjectsError.message}`);
   }
 
-  const { error: seedProjectsError } = await supabase.from(TABLES.PROJECTS).upsert(defaults.map(fromProject));
+  const { error: seedProjectsError } = await supabase.from('projects').upsert(defaults.map(fromProject));
   if (seedProjectsError) {
-    throw new Error(formatBackendError('Failed to seed default projects in backend', seedProjectsError));
+    throw new Error(`Failed to seed default projects in backend: ${seedProjectsError.message}`);
   }
-};
-
-export type CmsBackendStatus = {
-  settingsTable: 'ok' | 'missing' | 'error';
-  projectsTable: 'ok' | 'missing' | 'error';
-  details: string[];
-};
-
-export const getCmsBackendStatus = async (): Promise<CmsBackendStatus> => {
-  const details: string[] = [];
-
-  const { error: settingsError } = await supabase.from(TABLES.SITE_SETTINGS).select('id').limit(1);
-  const { error: projectsError } = await supabase.from(TABLES.PROJECTS).select('id').limit(1);
-
-  const settingsTable: CmsBackendStatus['settingsTable'] = settingsError
-    ? isMissingTableError(settingsError)
-      ? 'missing'
-      : 'error'
-    : 'ok';
-
-  const projectsTable: CmsBackendStatus['projectsTable'] = projectsError
-    ? isMissingTableError(projectsError)
-      ? 'missing'
-      : 'error'
-    : 'ok';
-
-  if (settingsError) details.push(formatBackendError('Site settings table check failed', settingsError));
-  if (projectsError) details.push(formatBackendError('Projects table check failed', projectsError));
-
-  return { settingsTable, projectsTable, details };
 };
 
 export const getProjectBySlug = async (slug: string): Promise<Project | undefined> => {
