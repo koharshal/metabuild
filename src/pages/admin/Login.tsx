@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -20,7 +20,7 @@ const Login = () => {
     setError('');
 
     setSubmitting(true);
-    const success = await login(email, password);
+    const success = await login(identifier, password);
     setSubmitting(false);
 
     if (success) {
@@ -48,7 +48,7 @@ const Login = () => {
         <div className="bg-luxury-charcoal border border-luxury-gray p-8">
           <h2 className="text-xl font-display text-luxury-white mb-6 text-center">Sign In</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-500 text-sm">
                 {error}
@@ -57,16 +57,18 @@ const Login = () => {
 
             <div>
               <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">
-                Admin Email
+                Admin Username or Email
               </label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-muted" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  name="username"
+                  autoComplete="username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
-                  placeholder="admin@metabuildrealty.com"
+                  placeholder="metabuild"
                   required
                 />
               </div>
