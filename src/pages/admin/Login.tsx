@@ -56,9 +56,7 @@ const Login = () => {
             )}
 
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">
-                Admin Username or Email
-              </label>
+              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Admin Email</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-muted" />
                 <input
@@ -68,7 +66,7 @@ const Login = () => {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
-                  placeholder="metabuild"
+                  placeholder="admin@yourcompany.com"
                   required
                 />
               </div>

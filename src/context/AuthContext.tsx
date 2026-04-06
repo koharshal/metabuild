@@ -9,9 +9,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const LOCAL_ADMIN_SESSION_KEY = 'metabuild_local_admin_session';
-const LOCAL_ADMIN_USERNAME = 'metabuild';
-const LOCAL_ADMIN_PASSWORD = 'Metabuild@99';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -23,9 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const bootstrap = async () => {
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
-      const hasLocalAdminSession =
-        typeof window !== 'undefined' && localStorage.getItem(LOCAL_ADMIN_SESSION_KEY) === 'true';
-      setIsAuthenticated(Boolean(data.session) || hasLocalAdminSession);
+      setIsAuthenticated(Boolean(data.session));
       setIsLoading(false);
     };
 
@@ -35,9 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
-      const hasLocalAdminSession =
-        typeof window !== 'undefined' && localStorage.getItem(LOCAL_ADMIN_SESSION_KEY) === 'true';
-      setIsAuthenticated(Boolean(session) || hasLocalAdminSession);
+      setIsAuthenticated(Boolean(session));
     });
 
     return () => {
@@ -48,26 +41,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const identifier = email.trim();
-
-    if (identifier === LOCAL_ADMIN_USERNAME && password === LOCAL_ADMIN_PASSWORD) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_ADMIN_SESSION_KEY, 'true');
-      }
-      setIsAuthenticated(true);
-      return true;
-    }
-
     const { error } = await supabase.auth.signInWithPassword({ email: identifier, password });
-    if (!error && typeof window !== 'undefined') {
-      localStorage.removeItem(LOCAL_ADMIN_SESSION_KEY);
-    }
     return !error;
   };
 
   const logout = async () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(LOCAL_ADMIN_SESSION_KEY);
-    }
     await supabase.auth.signOut();
   };
 
