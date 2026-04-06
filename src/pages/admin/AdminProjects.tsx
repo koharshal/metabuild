@@ -25,24 +25,32 @@ const AdminProjects = () => {
   }, []);
 
   const handleSave = async (project: Project) => {
-    if (editingProject) {
-      await updateProject(project.id, project);
-    } else {
-      await addProject(project);
+    try {
+      if (editingProject) {
+        await updateProject(project.id, project);
+      } else {
+        await addProject(project);
+      }
+      const updatedProjects = await getProjects();
+      setProjects(updatedProjects);
+      setShowModal(false);
+      setEditingProject(null);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to save project.');
     }
-    const updatedProjects = await getProjects();
-    setProjects(updatedProjects);
-    setShowModal(false);
-    setEditingProject(null);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this project? This cannot be undone.')) {
-      await deleteProject(id);
-      const updatedProjects = await getProjects();
-      setProjects(updatedProjects);
+      try {
+        await deleteProject(id);
+        const updatedProjects = await getProjects();
+        setProjects(updatedProjects);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to delete project.');
+      }
     }
   };
 
