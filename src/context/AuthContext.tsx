@@ -1,46 +1,64 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_KEY = 'metabuild_auth';
-const USERNAME = 'metabuild';
-const PASSWORD = 'Metabuild@99';
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    if (stored === 'true') {
-      setIsAuthenticated(true);
-    }
+    let mounted = true;
+
+    const bootstrap = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!mounted) return;
+      setIsAuthenticated(Boolean(data.session));
+      setIsLoading(false);
+    };
+
+    bootstrap();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      setIsAuthenticated(Boolean(session));
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = (username: string, password: string): boolean => {
-    if (username === USERNAME && password === PASSWORD) {
-      localStorage.setItem(AUTH_KEY, 'true');
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
+  const login = async (email: string, password: string): Promise<boolean> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return !error;
   };
 
-  const logout = () => {
-    localStorage.removeItem(AUTH_KEY);
-    setIsAuthenticated(false);
+  const logout = async () => {
+    await supabase.auth.signOut();
   };
 
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      isAuthenticated,
+      isLoading,
+      login,
+      logout,
+    }),
+    [isAuthenticated, isLoading],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

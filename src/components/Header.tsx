@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { getSiteSettings } from '../data/cmsStore';
+import { defaultSiteSettings, getSiteSettings } from '../data/cmsStore';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [settings, setSettings] = useState(defaultSiteSettings);
   const location = useLocation();
-  const settings = getSiteSettings();
   const companyName = settings.companyName || 'Metabuild';
   const tagline = settings.tagline || 'Realty';
 
@@ -17,6 +17,14 @@ const Header = () => {
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const data = await getSiteSettings();
+      setSettings(data);
+    };
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,14 +43,11 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled || location.pathname !== '/'
-          ? 'glass border-b border-white/5'
-          : 'bg-transparent'
+        scrolled || location.pathname !== '/' ? 'glass border-b border-white/5' : 'bg-transparent'
       }`}
     >
       <nav className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex justify-between items-center h-24">
-          {/* Logo */}
           <Link to="/" className="flex items-center">
             <div className="flex items-center gap-3">
               {settings.logo ? (
@@ -61,16 +66,13 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-12">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
                 className={`text-sm tracking-widest uppercase transition-colors ${
-                  isActive(item.href)
-                    ? 'text-luxury-gold'
-                    : 'text-luxury-white/70 hover:text-luxury-white'
+                  isActive(item.href) ? 'text-luxury-gold' : 'text-luxury-white/70 hover:text-luxury-white'
                 }`}
               >
                 {item.name}
@@ -84,16 +86,11 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden text-luxury-white"
-          >
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden text-luxury-white">
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="lg:hidden py-6 border-t border-white/10">
             <div className="flex flex-col gap-4">
@@ -103,9 +100,7 @@ const Header = () => {
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
                   className={`text-sm tracking-widest uppercase transition-colors ${
-                    isActive(item.href)
-                      ? 'text-luxury-gold'
-                      : 'text-luxury-white/70 hover:text-luxury-white'
+                    isActive(item.href) ? 'text-luxury-gold' : 'text-luxury-white/70 hover:text-luxury-white'
                   }`}
                 >
                   {item.name}
