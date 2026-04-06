@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
-import { getSiteSettings } from '../data/cmsStore';
+import { defaultSiteSettings, getSiteSettings } from '../data/cmsStore';
 
 const Contact = () => {
-  const settings = getSiteSettings();
+  const [settings, setSettings] = useState(defaultSiteSettings);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getSiteSettings();
+      setSettings(data);
+    };
+
+    load();
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
