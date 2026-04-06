@@ -243,12 +243,13 @@ const writeLocalProjects = (projects: Project[]) => {
 
 export const getSiteSettings = async (): Promise<SiteSettings> => {
   const { data, error } = await supabase
-    .from('site_settings')
+    .from(TABLES.SITE_SETTINGS)
     .select('data')
     .eq('id', 'default')
     .single();
 
   if (error) {
+    console.warn(formatBackendError('Failed to load site settings from backend', error));
     return readLocalSettings();
   }
 
@@ -263,7 +264,7 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
   const updated = { ...current, ...settings };
 
   const { error } = await supabase
-    .from('site_settings')
+    .from(TABLES.SITE_SETTINGS)
     .upsert({ id: 'default', data: updated }, { onConflict: 'id' });
 
   if (error) {
@@ -275,9 +276,12 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
 };
 
 export const getProjects = async (): Promise<Project[]> => {
-  const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
+  const { data, error } = await supabase.from(TABLES.PROJECTS).select('*').order('created_at', { ascending: true });
 
   if (error || !data) {
+    if (error) {
+      console.warn(formatBackendError('Failed to load projects from backend', error));
+    }
     return readLocalProjects();
   }
 
@@ -311,7 +315,7 @@ export const updateProject = async (id: string, updates: Partial<Project>): Prom
   if (updates.brochure !== undefined) payload.brochure = updates.brochure;
   if (updates.pdfSlug !== undefined) payload.pdf_slug = updates.pdfSlug;
 
-  const { error } = await supabase.from('projects').update(payload).eq('id', id);
+  const { error } = await supabase.from(TABLES.PROJECTS).update(payload).eq('id', id);
   if (error) {
     throw new Error(`Failed to update project in backend: ${error.message}`);
   }
@@ -355,7 +359,7 @@ export const resetToDefaults = async (): Promise<void> => {
 };
 
 export const getProjectBySlug = async (slug: string): Promise<Project | undefined> => {
-  const { data, error } = await supabase.from('projects').select('*').eq('pdf_slug', slug).maybeSingle();
+  const { data, error } = await supabase.from(TABLES.PROJECTS).select('*').eq('pdf_slug', slug).maybeSingle();
 
   if (error || !data) {
     return readLocalProjects().find((project) => project.pdfSlug === slug);
@@ -365,7 +369,7 @@ export const getProjectBySlug = async (slug: string): Promise<Project | undefine
 };
 
 export const getProjectById = async (id: string): Promise<Project | undefined> => {
-  const { data, error } = await supabase.from('projects').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from(TABLES.PROJECTS).select('*').eq('id', id).maybeSingle();
 
   if (error || !data) {
     return readLocalProjects().find((project) => project.id === id);

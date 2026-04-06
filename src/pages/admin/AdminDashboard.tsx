@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Save, RotateCcw, Image, Upload, X, Copy, Check } from 'lucide-react';
 import AdminLayout from './AdminLayout';
-import { defaultSiteSettings, getSiteSettings, saveSiteSettings, resetToDefaults } from '../../data/cmsStore';
+import {
+  defaultSiteSettings,
+  getCmsBackendStatus,
+  getSiteSettings,
+  saveSiteSettings,
+  resetToDefaults,
+  type CmsBackendStatus,
+} from '../../data/cmsStore';
 
 const AdminDashboard = () => {
   const [settings, setSettings] = useState(defaultSiteSettings);
   const [saved, setSaved] = useState(false);
   const [logoPreview, setLogoPreview] = useState('');
   const [copied, setCopied] = useState(false);
+  const [backendStatus, setBackendStatus] = useState<CmsBackendStatus | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      const data = await getSiteSettings();
+      const [data, status] = await Promise.all([getSiteSettings(), getCmsBackendStatus()]);
       setSettings(data);
       setLogoPreview(data.logo || '');
+      setBackendStatus(status);
     };
 
     load();
@@ -77,6 +86,23 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="space-y-8">
+        {backendStatus && (backendStatus.settingsTable !== 'ok' || backendStatus.projectsTable !== 'ok') && (
+          <div className="bg-red-500/10 border border-red-500/30 p-4 text-red-300 text-sm space-y-2">
+            <p className="font-medium">CMS backend is not fully configured in Supabase.</p>
+            <p>
+              Please run <code className="px-1 py-0.5 bg-black/30 rounded">supabase-setup.sql</code> in Supabase SQL
+              Editor or set table names with
+              <code className="px-1 py-0.5 bg-black/30 rounded ml-1">VITE_SUPABASE_SITE_SETTINGS_TABLE</code> and
+              <code className="px-1 py-0.5 bg-black/30 rounded ml-1">VITE_SUPABASE_PROJECTS_TABLE</code>.
+            </p>
+            {backendStatus.details.map((detail) => (
+              <p key={detail} className="text-xs opacity-90">
+                • {detail}
+              </p>
+            ))}
+          </div>
+        )}
+
         {/* Header */}
         <div>
           <h2 className="text-2xl font-display text-luxury-white mb-2">Site Settings</h2>
