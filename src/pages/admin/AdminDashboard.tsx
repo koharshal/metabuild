@@ -339,9 +339,8 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={handleSave}
-            className={`flex items-center gap-2 px-8 py-3 ${
-              saved ? 'bg-green-600' : 'bg-luxury-gold'
-            } text-luxury-black font-medium transition-colors`}
+            className={`flex items-center gap-2 px-8 py-3 ${saved ? 'bg-green-600' : 'bg-luxury-gold'
+              } text-luxury-black font-medium transition-colors`}
           >
             <Save className="w-4 h-4" />
             {saved ? 'Saved!' : 'Save Changes'}
