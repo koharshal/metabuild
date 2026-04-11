@@ -86,7 +86,7 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        {backendStatus && (backendStatus.settingsTable !== 'ok' || backendStatus.projectsTable !== 'ok') && (
+        {backendStatus && (!backendStatus.settingsTable || !backendStatus.projectsTable) && (
           <div className="bg-red-500/10 border border-red-500/30 p-4 text-red-300 text-sm space-y-2">
             <p className="font-medium">CMS backend is not fully configured in Supabase.</p>
             <p>
@@ -95,11 +95,11 @@ const AdminDashboard = () => {
               <code className="px-1 py-0.5 bg-black/30 rounded ml-1">VITE_SUPABASE_SITE_SETTINGS_TABLE</code> and
               <code className="px-1 py-0.5 bg-black/30 rounded ml-1">VITE_SUPABASE_PROJECTS_TABLE</code>.
             </p>
-            {backendStatus.details.map((detail) => (
-              <p key={detail} className="text-xs opacity-90">
-                • {detail}
+            {backendStatus.details && (
+              <p className="text-xs opacity-90 shadow-sm">
+                • {backendStatus.details}
               </p>
-            ))}
+            )}
           </div>
         )}
 
