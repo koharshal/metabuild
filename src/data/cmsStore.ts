@@ -1,4 +1,33 @@
+
+
 import { supabase } from '../lib/supabase';
+
+// 1. Define your Supabase table names
+const TABLES = {
+  PROJECTS: 'projects',
+  CONTENT: 'site_content',
+  BROCHURES: 'brochures'
+};
+
+// 2. Define the error formatter the AI used but didn't write
+const formatBackendError = (error: any) => {
+  console.error("Supabase Error:", error);
+  return error?.message || "An unexpected error occurred with the backend.";
+};
+
+// 3. Ensure the missing types and functions are exported
+export type CmsBackendStatus = 'loading' | 'online' | 'offline' | 'error';
+
+export const getCmsBackendStatus = async (): Promise<CmsBackendStatus> => {
+  // Simple check to see if Supabase is reachable
+  try {
+    const { data, error } = await supabase.from(TABLES.PROJECTS).select('count', { count: 'exact', head: true });
+    if (error) return 'offline';
+    return 'online';
+  } catch {
+    return 'error';
+  }
+};
 
 export interface Project {
   id: string;
