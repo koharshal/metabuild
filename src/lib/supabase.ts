@@ -1,22 +1,37 @@
 import { createClient } from '@supabase/supabase-js';
 
-const defaultSupabaseUrl = 'https://jredfufqrbasziqwhvxg.supabase.co';
-const defaultSupabaseAnonKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpyZWRmdWZxcmJhc3ppcXdodjBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMzM5MDB9.9J5Lwlz3VJ8bRq2b3JcG9u8R3vH6i2Y9K1N5t7k8XQc';
+// Primary config: env vars (set in Vercel dashboard or .env.local)
+// Fallback: hardcoded project credentials for development without .env
+const FALLBACK_URL = 'https://jredfufqrbasziqwhvxg.supabase.co';
+const FALLBACK_ANON_KEY = 'sb_publishable_dcYwx0g3A2-XnZ6...';
+// ⚠️ ACTION REQUIRED: Paste the full anon key from your Supabase dashboard
+// (Project Settings → API → anon public key) into VITE_SUPABASE_ANON_KEY
+// in your Vercel project environment variables.
 
-const envSupabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const envSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-const envLooksLikeSecretKey = Boolean(envSupabaseAnonKey?.startsWith('sb_secret_'));
+const envUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-const useEnvConfig = Boolean(envSupabaseUrl && envSupabaseAnonKey) && !envLooksLikeSecretKey;
-
-if (envLooksLikeSecretKey) {
+// Guard against accidentally using a secret key
+if (envKey?.startsWith('sb_secret_')) {
   console.error(
-    'Unsafe Supabase key detected: VITE_SUPABASE_ANON_KEY must be the public anon key, not an sb_secret_* key. Falling back to safe default key.',
+    '[Supabase] VITE_SUPABASE_ANON_KEY is a secret key — use the public anon key instead.',
   );
 }
 
-const supabaseUrl = useEnvConfig ? envSupabaseUrl! : defaultSupabaseUrl;
-const supabaseAnonKey = useEnvConfig ? envSupabaseAnonKey! : defaultSupabaseAnonKey;
+const supabaseUrl = (envUrl?.trim() || FALLBACK_URL);
+const supabaseAnonKey = (envKey?.trim() && !envKey.startsWith('sb_secret_'))
+  ? envKey.trim()
+  : FALLBACK_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  global: {
+    // Fail fast — don't let slow/broken connections block the UI for minutes
+    fetch: (url, options) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 8000); // 8s timeout
+      return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+        clearTimeout(id),
+      );
+    },
+  },
+});

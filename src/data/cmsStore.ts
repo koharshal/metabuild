@@ -159,7 +159,8 @@ const toProject = (row: any): Project => ({
   description: row.description || '',
   specs: (row.specs as Project['specs']) || {},
   highlights: (row.highlights as string[]) || [],
-  coverImage: row.cover_image || '',
+  // Support both 'cover_image' and 'save_image' column names
+  coverImage: row.cover_image || row.save_image || '',
   gallery: (row.gallery as string[]) || [],
   brochure: row.brochure || '',
   pdfSlug: row.pdf_slug || '',
@@ -271,10 +272,10 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
 };
 
 export const getProjects = async (): Promise<Project[]> => {
-  // Select only fields needed for list/card views to minimize payload size
+  // Select all fields needed — include both cover_image and save_image for compatibility
   const { data, error } = await supabase
     .from(TABLES.PROJECTS)
-    .select('id, name, slug, category, status, location, cover_image, specs')
+    .select('id, name, slug, category, status, location, cover_image, save_image, specs')
     .order('created_at', { ascending: true });
 
   if (error || !data) {
