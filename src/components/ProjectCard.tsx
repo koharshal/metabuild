@@ -10,62 +10,58 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
   return (
     <Link
       to={`/projects/${project.id}`}
-      className="group block relative overflow-hidden"
+      className="group block relative border-r border-b border-brutal-black bg-brutal-bg transition-colors hover:bg-brutal-black"
     >
-      {/* Image */}
-      <div className="relative aspect-[4/5] overflow-hidden">
+      {/* Image Block */}
+      <div className="relative aspect-[4/5] border border-brutal-black overflow-hidden bg-brutal-bg">
         <img
           src={project.coverImage}
           alt={project.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 will-change-transform"
           onError={(e) => {
             (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80';
           }}
         />
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-luxury-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
         {/* Status Badge */}
-        <div className="absolute top-6 left-6">
-          <span className={`px-4 py-1.5 text-[10px] tracking-widest uppercase backdrop-blur-sm ${
-            project.status === 'completed'
-              ? 'bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30'
-              : project.status === 'upcoming'
-              ? 'bg-luxury-white/10 text-luxury-white border border-luxury-white/20'
-              : 'bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30'
-          }`}>
+        <div className="absolute top-0 left-0 bg-brutal-white border-b border-r border-brutal-black">
+          <span className="block px-4 py-2 text-[10px] tracking-[0.15em] uppercase font-bold text-brutal-black">
             {project.status}
           </span>
         </div>
 
-        {/* Category */}
-        <div className="absolute top-6 right-6">
-          <span className="text-[10px] tracking-widest uppercase text-luxury-white/60">
+        {/* Category Badge */}
+        <div className="absolute top-0 right-0 bg-brutal-black border-b border-l border-brutal-black">
+          <span className="block px-4 py-2 text-[10px] tracking-[0.15em] uppercase font-bold text-brutal-white">
             {project.category}
           </span>
         </div>
+      </div>
 
         {/* Content - Shows on hover */}
-        <div className="absolute inset-x-6 bottom-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-          <div className="flex items-center justify-between">
-            <span className="text-luxury-gold text-xs tracking-widest uppercase">View Project</span>
-            <ArrowUpRight className="w-5 h-5 text-luxury-gold" />
+      {/* Info Block */}
+      <div className="py-8 px-6 lg:px-8 border-t border-brutal-black bg-brutal-white transition-colors">
+        <h3 className="font-display text-2xl lg:text-3xl text-brutal-black mb-2 uppercase tracking-tighter">
+          {project.name}
+        </h3>
+        <div className="grid grid-cols-2 gap-4 mt-8 border-t border-brutal-black pt-6">
+          <div>
+            <span className="block text-[10px] font-bold text-brutal-black/50 uppercase tracking-widest mb-1 border-b border-brutal-black pb-1 w-max">LOCATION</span>
+            <span className="block font-body text-xs font-bold uppercase mt-2">{project.location}</span>
           </div>
-        </div>
-
-        {/* Always visible bottom content */}
-        <div className="absolute bottom-0 inset-x-0 p-6">
-          <h3 className="font-display text-2xl text-luxury-white mb-2 group-hover:text-luxury-gold transition-colors duration-300">
-            {project.name}
-          </h3>
-          <p className="text-luxury-muted text-sm">
-            {project.location}
-          </p>
           {project.specs.area && (
-            <p className="text-luxury-white/60 text-xs mt-2">
-              {project.specs.area}
-            </p>
+            <div>
+              <span className="block text-[10px] font-bold text-brutal-black/50 uppercase tracking-widest mb-1 border-b border-brutal-black pb-1 w-max">AREA</span>
+              <span className="block font-body text-xs font-bold uppercase mt-2">{project.specs.area}</span>
+            </div>
           )}
+        </div>
+        
+        <div className="mt-8 flex items-center justify-between border-t border-brutal-black pt-4 group-hover:bg-brutal-white transition-all">
+          <span className="text-brutal-black text-[10px] font-bold uppercase tracking-widest border border-brutal-black px-4 py-2 hover:bg-brutal-black hover:text-brutal-white transition-colors">View Project</span>
+          <div className="w-10 h-10 border border-brutal-black flex items-center justify-center bg-brutal-white text-brutal-black group-hover:bg-brutal-black group-hover:text-brutal-white transition-colors">
+            <ArrowUpRight className="w-5 h-5" />
+          </div>
         </div>
       </div>
     </Link>

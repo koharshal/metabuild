@@ -8,7 +8,30 @@ export const TABLES = {
   SITE_SETTINGS: 'site_settings'
 };
 
-// 2. Updated Error Formatter to handle 2 arguments
+export const uploadToStorage = async (file: File, folder: string): Promise<string> => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+  const filePath = `${folder}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('cms-assets')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (uploadError) {
+    throw new Error(`Error uploading file to storage: ${uploadError.message}`);
+  }
+
+  const { data } = supabase.storage
+    .from('cms-assets')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+};
+
+// 3. Updated Error Formatter to handle 2 arguments
 export const formatBackendError = (message: string, error: any) => {
   console.error(`${message}:`, error);
   return error?.message || "An unexpected error occurred with the backend.";
@@ -25,8 +48,9 @@ export interface CmsBackendStatus {
 export const getCmsBackendStatus = async (): Promise<CmsBackendStatus> => {
   try {
     // Check critical tables to verify DB health
-    const { error: settingsError } = await supabase.from(TABLES.SITE_SETTINGS).select('count', { count: 'exact', head: true });
-    const { error: projectsError } = await supabase.from(TABLES.PROJECTS).select('count', { count: 'exact', head: true });
+    // Check critical tables to verify DB health using correct count syntax
+    const { error: settingsError } = await supabase.from(TABLES.SITE_SETTINGS).select('*', { count: 'exact', head: true });
+    const { error: projectsError } = await supabase.from(TABLES.PROJECTS).select('*', { count: 'exact', head: true });
 
     const isOnline = !settingsError && !projectsError;
 
@@ -247,7 +271,11 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
 };
 
 export const getProjects = async (): Promise<Project[]> => {
-  const { data, error } = await supabase.from(TABLES.PROJECTS).select('*').order('created_at', { ascending: true });
+  // Select only fields needed for list/card views to minimize payload size
+  const { data, error } = await supabase
+    .from(TABLES.PROJECTS)
+    .select('id, name, slug, category, status, location, cover_image, specs')
+    .order('created_at', { ascending: true });
 
   if (error || !data) {
     if (error) {

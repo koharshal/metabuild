@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, RotateCcw, Image, Upload, X, Copy, Check } from 'lucide-react';
+import { Save, RotateCcw, Image, Upload, X, Copy, Check, ArrowLeft } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import {
   defaultSiteSettings,
@@ -7,6 +7,7 @@ import {
   getSiteSettings,
   saveSiteSettings,
   resetToDefaults,
+  uploadToStorage,
   type CmsBackendStatus,
 } from '../../data/cmsStore';
 
@@ -32,20 +33,20 @@ const AdminDashboard = () => {
     setSettings((prev: any) => ({ ...prev, [field]: value }));
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
         alert('File size must be less than 2MB');
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setLogoPreview(result);
-        handleChange('logo', result);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const url = await uploadToStorage(file, 'branding');
+        setLogoPreview(url);
+        handleChange('logo', url);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to upload logo.');
+      }
     }
   };
 
@@ -104,26 +105,26 @@ const AdminDashboard = () => {
         )}
 
         {/* Header */}
-        <div>
-          <h2 className="text-2xl font-display text-luxury-white mb-2">Site Settings</h2>
-          <p className="text-luxury-muted text-sm">Manage your website content, branding, and text</p>
+        <div className="mb-8">
+          <h2 className="text-4xl font-display text-brutal-black mb-2 uppercase tracking-tighter">Site Settings</h2>
+          <p className="text-brutal-black font-body text-sm">Manage your website content, branding, and text</p>
         </div>
 
         {/* Site Branding - Logo */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">Site Branding</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">Site Branding</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Logo Upload */}
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Company Logo</label>
-              <div className="border-2 border-dashed border-luxury-gray rounded-lg p-4">
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Company Logo</label>
+              <div className="border border-dashed border-brutal-black p-4 bg-brutal-bg hover:bg-brutal-white transition-colors">
                 {logoPreview ? (
-                  <div className="relative">
+                  <div className="relative border border-brutal-black bg-brutal-white p-4">
                     <img src={logoPreview} alt="Logo preview" className="h-24 w-auto object-contain mx-auto" />
                     <button
                       onClick={removeLogo}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                      className="absolute -top-3 -right-3 p-1 bg-red-600 text-brutal-white border border-brutal-black hover:bg-red-700"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -131,9 +132,9 @@ const AdminDashboard = () => {
                 ) : (
                   <label className="cursor-pointer block">
                     <div className="py-8 text-center">
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-luxury-muted" />
-                      <p className="text-luxury-muted text-sm">Click to upload logo</p>
-                      <p className="text-luxury-muted text-xs mt-1">PNG, JPG, SVG (max 2MB)</p>
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-brutal-black" />
+                      <p className="text-brutal-black font-body font-bold text-sm">Click to upload logo</p>
+                      <p className="text-brutal-black/70 text-xs mt-1">PNG, JPG, SVG (max 2MB)</p>
                     </div>
                     <input
                       type="file"
@@ -148,22 +149,22 @@ const AdminDashboard = () => {
 
             {/* Quick Links */}
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Quick Links</label>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-luxury-black border border-luxury-gray">
-                  <span className="text-luxury-white text-sm">Website URL</span>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Quick Links</label>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-brutal-bg border border-brutal-black hover:bg-brutal-white transition-colors">
+                  <span className="text-brutal-black font-body text-sm font-bold">Website URL</span>
                   <button
                     onClick={copySiteUrl}
-                    className="flex items-center gap-2 text-luxury-gold hover:text-luxury-gold-light text-sm"
+                    className="flex items-center gap-2 text-brutal-black font-bold text-sm group"
                   >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5 group-hover:scale-110 transition-transform" />}
                     {copied ? 'Copied!' : 'Copy URL'}
                   </button>
                 </div>
-                <div className="p-3 bg-luxury-black border border-luxury-gray">
-                  <span className="text-luxury-muted text-xs block mb-1">Public Website</span>
-                  <a href="/" target="_blank" rel="noopener noreferrer" className="text-luxury-white text-sm hover:text-luxury-gold">
-                    View Live Site →
+                <div className="p-4 bg-brutal-bg border border-brutal-black hover:bg-brutal-white transition-colors">
+                  <span className="text-[10px] tracking-widest uppercase font-bold text-brutal-black/50 block mb-2">Public Website</span>
+                  <a href="/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-admin-blue font-bold text-sm hover:underline">
+                    View Live Site <ArrowLeft className="w-4 h-4 ml-2 rotate-135" style={{transform: "rotate(135deg)"}} />
                   </a>
                 </div>
               </div>
@@ -172,158 +173,158 @@ const AdminDashboard = () => {
         </div>
 
         {/* Company Info */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">Company Information</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">Company Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Company Name</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Company Name</label>
               <input
                 type="text"
                 value={settings.companyName || ''}
                 onChange={(e) => handleChange('companyName', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Tagline</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Tagline</label>
               <input
                 type="text"
                 value={settings.tagline || ''}
                 onChange={(e) => handleChange('tagline', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
           </div>
         </div>
 
         {/* Hero Section */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">Hero Section</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">Hero Section</h3>
           <div className="space-y-6">
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Hero Tagline</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Hero Tagline</label>
               <input
                 type="text"
                 value={settings.heroTagline || ''}
                 onChange={(e) => handleChange('heroTagline', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Hero Title</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Hero Title</label>
               <input
                 type="text"
                 value={settings.heroTitle || ''}
                 onChange={(e) => handleChange('heroTitle', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Hero Subtitle</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Hero Subtitle</label>
               <textarea
                 rows={3}
                 value={settings.heroSubtitle || ''}
                 onChange={(e) => handleChange('heroSubtitle', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors resize-none"
               />
             </div>
           </div>
         </div>
 
         {/* About Section */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">About Section</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">About Section</h3>
           <div className="space-y-6">
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">About Title</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">About Title</label>
               <input
                 type="text"
                 value={settings.aboutTitle || ''}
                 onChange={(e) => handleChange('aboutTitle', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">About Description</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">About Description</label>
               <textarea
                 rows={4}
                 value={settings.aboutDescription || ''}
                 onChange={(e) => handleChange('aboutDescription', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors resize-none"
               />
             </div>
           </div>
         </div>
 
         {/* CTA Section */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">Call to Action Section</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">Call to Action Section</h3>
           <div className="space-y-6">
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">CTA Title</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">CTA Title</label>
               <input
                 type="text"
                 value={settings.ctaTitle || ''}
                 onChange={(e) => handleChange('ctaTitle', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">CTA Description</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">CTA Description</label>
               <textarea
                 rows={2}
                 value={settings.ctaDescription || ''}
                 onChange={(e) => handleChange('ctaDescription', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors resize-none"
               />
             </div>
           </div>
         </div>
 
         {/* Contact Info */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">Contact Information</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">Contact Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Email</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Email</label>
               <input
                 type="email"
                 value={settings.contactEmail || ''}
                 onChange={(e) => handleChange('contactEmail', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Phone</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Phone</label>
               <input
                 type="text"
                 value={settings.contactPhone || ''}
                 onChange={(e) => handleChange('contactPhone', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Address</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Address</label>
               <input
                 type="text"
                 value={settings.contactAddress || ''}
                 onChange={(e) => handleChange('contactAddress', e.target.value)}
-                className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors"
               />
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-6">
-          <h3 className="text-lg font-display text-luxury-white mb-6">Footer</h3>
+        <div className="bg-brutal-white border border-brutal-black p-8">
+          <h3 className="text-xl font-display text-brutal-black mb-8 uppercase tracking-tighter">Footer</h3>
           <div>
-            <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Footer Description</label>
+            <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Footer Description</label>
             <textarea
               rows={3}
               value={settings.footerDescription || ''}
               onChange={(e) => handleChange('footerDescription', e.target.value)}
-              className="w-full px-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none resize-none"
+              className="w-full px-4 py-3 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors resize-none"
             />
           </div>
         </div>
@@ -332,15 +333,18 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-between pt-4">
           <button
             onClick={handleReset}
-            className="flex items-center gap-2 px-6 py-3 border border-luxury-gray text-luxury-muted hover:border-red-500 hover:text-red-500 transition-colors"
+            className="flex items-center gap-2 px-6 h-12 border border-brutal-black text-brutal-black bg-brutal-white hover:bg-brutal-black hover:text-brutal-white font-bold text-[10px] tracking-widest uppercase transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             Reset to Defaults
           </button>
           <button
             onClick={handleSave}
-            className={`flex items-center gap-2 px-8 py-3 ${saved ? 'bg-green-600' : 'bg-luxury-gold'
-              } text-luxury-black font-medium transition-colors`}
+            className={`flex items-center gap-2 px-8 h-12 font-bold text-[10px] tracking-widest uppercase border transition-colors ${
+              saved 
+                ? 'bg-green-600 text-brutal-white border-green-600' 
+                : 'bg-admin-blue border-admin-blue text-brutal-white hover:bg-admin-blue/90'
+              }`}
           >
             <Save className="w-4 h-4" />
             {saved ? 'Saved!' : 'Save Changes'}

@@ -3,36 +3,40 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { MapPin, Download, ArrowLeft, Building2, Layers, Home } from 'lucide-react';
 import ImageGallery from '../components/ImageGallery';
 import ProjectCard from '../components/ProjectCard';
-import { getProjects, type Project } from '../data/cmsStore';
+import { getProjects, getProjectById, type Project } from '../data/cmsStore';
 
 const ProjectDetail = () => {
   const { id } = useParams();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadProjects = async () => {
+    const loadData = async () => {
       try {
-        const data = await getProjects();
-        setProjects(data);
+        if (!id) return;
+        const [allProjects, currentProject] = await Promise.all([
+          getProjects(),
+          getProjectById(id)
+        ]);
+        setProjects(allProjects);
+        setProject(currentProject || null);
       } catch (error) {
-        console.error('Error loading projects:', error);
+        console.error('Error loading project data:', error);
       } finally {
         setLoading(false);
       }
     };
-    loadProjects();
-  }, []);
+    loadData();
+  }, [id]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-luxury-black pt-20 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
+      <div className="min-h-screen bg-brutal-white pt-20 flex items-center justify-center">
+        <div className="animate-spin h-12 w-12 border-t-4 border-b-4 border-brutal-black"></div>
       </div>
     );
   }
-
-  const project = projects.find(p => p.id === id);
 
   if (!project) {
     return <Navigate to="/projects" replace />;
@@ -43,153 +47,131 @@ const ProjectDetail = () => {
     .slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-luxury-black pt-20">
-      {/* Hero */}
-      <section className="relative h-[60vh] md:h-[70vh]">
-        <img
-          src={project.coverImage}
-          alt={project.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80';
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-luxury-black/30 to-transparent" />
+    <div className="min-h-screen bg-brutal-white pt-24">
+      
+      {/* Top Header Row */}
+      <div className="w-full px-6 lg:px-12 py-6 border-b border-brutal-black hidden lg:block">
+        <Link
+          to="/projects"
+          className="inline-flex items-center text-brutal-black hover:bg-brutal-black hover:text-brutal-white transition-colors text-[12px] font-bold tracking-[0.15em] uppercase border-b border-transparent py-1"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Portfolio
+        </Link>
+      </div>
 
-        <div className="absolute top-24 left-0 right-0 p-6 lg:p-12">
-          <div className="max-w-7xl mx-auto">
-            <Link
-              to="/projects"
-              className="inline-flex items-center text-luxury-white/70 hover:text-luxury-gold mb-6 transition-colors text-sm tracking-widest uppercase"
+      <div className="w-full px-6 lg:px-12 flex flex-col lg:flex-row items-start gap-12 lg:gap-24 pt-12 lg:pt-24 pb-24 border-b border-brutal-black">
+        
+        {/* Mobile Back Link */}
+        <Link
+          to="/projects"
+          className="lg:hidden inline-flex items-center text-brutal-black font-bold tracking-[0.15em] uppercase text-[12px] mb-8"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Portfolio
+        </Link>
+
+        {/* Left Column: Typography & Specs */}
+        <div className="w-full lg:w-1/3 flex flex-col pt-0 lg:sticky top-32">
+          
+          <h1 className="font-display text-6xl md:text-7xl lg:text-[100px] text-brutal-black mb-16 leading-[0.85] uppercase tracking-tighter break-words hyphens-auto">
+            {project.name}
+          </h1>
+
+          {/* Brutalist Spec Table */}
+          <div className="w-full border-t border-brutal-black border-b select-none mb-16">
+            <div className="grid grid-cols-2 py-4 border-b border-brutal-black">
+              <span className="text-[10px] font-bold tracking-[0.2em] text-brutal-black/50 uppercase">Location</span>
+              <span className="text-[13px] font-bold uppercase text-right">{project.location}</span>
+            </div>
+            
+            {project.specs?.area && (
+              <div className="grid grid-cols-2 py-4 border-b border-brutal-black">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-brutal-black/50 uppercase">Area</span>
+                <span className="text-[13px] font-bold uppercase text-right">{project.specs.area}</span>
+              </div>
+            )}
+            
+            {project.specs?.units && (
+              <div className="grid grid-cols-2 py-4 border-b border-brutal-black">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-brutal-black/50 uppercase">Units</span>
+                <span className="text-[13px] font-bold uppercase text-right">{project.specs.units}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 py-4 border-b border-brutal-black">
+              <span className="text-[10px] font-bold tracking-[0.2em] text-brutal-black/50 uppercase">Status</span>
+              <span className="text-[13px] font-bold uppercase text-right">{project.status}</span>
+            </div>
+
+            <div className="grid grid-cols-2 py-4">
+              <span className="text-[10px] font-bold tracking-[0.2em] text-brutal-black/50 uppercase">Category</span>
+              <span className="text-[13px] font-bold uppercase text-right">{project.category}</span>
+            </div>
+          </div>
+
+          <p className="text-brutal-black text-sm md:text-base leading-relaxed mb-12">
+            {project.description}
+          </p>
+
+          {project.highlights && project.highlights.length > 0 && (
+            <div className="mb-12">
+              <h3 className="font-bold tracking-[0.15em] text-[12px] uppercase mb-6 border-b border-brutal-black pb-4">Key Interventions</h3>
+              <ul className="flex flex-col gap-4">
+                {project.highlights.map((highlight, index) => (
+                  <li key={index} className="flex items-start text-sm">
+                    <span className="font-display font-bold mr-4 text-brutal-black">0{index + 1}</span>
+                    {highlight}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {(project.brochure || project.pdfSlug) && (
+            <a
+              href={project.pdfSlug ? `/brochure/${project.pdfSlug}` : project.brochure}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-brutal w-full justify-center inline-flex items-center gap-3 border border-brutal-black hover:bg-brutal-white hover:text-brutal-black"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Projects
-            </Link>
-
-            <div className="flex flex-wrap gap-4 mb-4">
-              <span className="px-4 py-1.5 border border-luxury-white/20 text-luxury-white text-xs tracking-widest uppercase backdrop-blur-sm">
-                {project.category}
-              </span>
-              <span className={`px-4 py-1.5 text-xs tracking-widest uppercase backdrop-blur-sm ${
-                project.status === 'completed'
-                  ? 'bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30'
-                  : project.status === 'ongoing'
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/20'
-              }`}>
-                {project.status}
-              </span>
-            </div>
-
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-luxury-white mb-4">
-              {project.name}
-            </h1>
-
-            <div className="flex items-center text-luxury-white/70">
-              <MapPin className="w-5 h-5 mr-2" />
-              <span>{project.location}</span>
-            </div>
-          </div>
+              <Download className="w-4 h-4" />
+              Download Case Study
+            </a>
+          )}
         </div>
-      </section>
 
-      {/* Content */}
-      <section className="py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              <h2 className="font-display text-2xl md:text-3xl text-luxury-white mb-6">
-                About This Project
-              </h2>
-              <p className="text-luxury-muted leading-relaxed mb-8">
-                {project.description}
-              </p>
-
-              {/* Highlights */}
-              {project.highlights && project.highlights.length > 0 && (
-                <div className="mb-12">
-                  <h3 className="font-display text-xl text-luxury-white mb-4">
-                    Key Highlights
-                  </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {project.highlights.map((highlight, index) => (
-                      <li key={index} className="flex items-start text-luxury-muted">
-                        <span className="w-2 h-2 bg-luxury-gold rounded-full mt-2 mr-3 flex-shrink-0" />
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Gallery */}
-              {project.gallery && project.gallery.length > 0 && (
-                <div>
-                  <h3 className="font-display text-xl text-luxury-white mb-4">
-                    Gallery
-                  </h3>
-                  <ImageGallery images={project.gallery} />
-                </div>
-              )}
-            </div>
-
-            {/* Sidebar */}
-            <div>
-              {/* Specs */}
-              {project.specs && Object.keys(project.specs).length > 0 && (
-                <div className="bg-luxury-charcoal p-6 mb-6">
-                  <h3 className="font-display text-lg text-luxury-white mb-4">
-                    Project Specifications
-                  </h3>
-                  <div className="space-y-4">
-                    {project.specs.area && (
-                      <div className="flex items-center text-luxury-muted">
-                        <Layers className="w-5 h-5 mr-3 text-luxury-gold" />
-                        <span>{project.specs.area}</span>
-                      </div>
-                    )}
-                    {project.specs.units && (
-                      <div className="flex items-center text-luxury-muted">
-                        <Home className="w-5 h-5 mr-3 text-luxury-gold" />
-                        <span>{project.specs.units}</span>
-                      </div>
-                    )}
-                    {project.specs.floors && (
-                      <div className="flex items-center text-luxury-muted">
-                        <Building2 className="w-5 h-5 mr-3 text-luxury-gold" />
-                        <span>{project.specs.floors}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Brochure Download */}
-              {(project.brochure || project.pdfSlug) && (
-                <a
-                  href={project.pdfSlug ? `/brochure/${project.pdfSlug}` : project.brochure}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-gold w-full justify-center inline-flex items-center gap-2"
-                >
-                  <Download className="w-5 h-5" />
-                  Download Brochure
-                </a>
-              )}
-            </div>
+        {/* Right Column: Imagery */}
+        <div className="w-full lg:w-2/3 flex flex-col gap-8">
+          <div className="w-full border border-brutal-black">
+            <img
+              src={project.coverImage}
+              alt={project.name}
+              className="w-full h-auto object-cover grayscale"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80';
+              }}
+            />
           </div>
+          
+          {project.gallery && project.gallery.length > 0 && (
+            project.gallery.map((img, idx) => (
+              <div key={idx} className="w-full border border-brutal-black">
+                <img src={img} alt={`Gallery ${idx}`} className="w-full h-auto object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+              </div>
+            ))
+          )}
         </div>
-      </section>
+      </div>
 
       {/* Related Projects */}
       {relatedProjects.length > 0 && (
-        <section className="py-16 lg:py-24 bg-luxury-charcoal">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12">
-            <h2 className="font-display text-3xl text-luxury-white mb-8">
-              Related Projects
+        <section className="py-16 lg:py-24 bg-brutal-bg">
+          <div className="w-full px-6 lg:px-12">
+            <h2 className="font-display text-3xl lg:text-5xl text-brutal-black uppercase tracking-tighter mb-12">
+              Related Context
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-brutal-black">
               {relatedProjects.map((relatedProject) => (
                 <ProjectCard key={relatedProject.id} project={relatedProject} />
               ))}

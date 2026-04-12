@@ -42,11 +42,11 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled || location.pathname !== '/' ? 'glass border-b border-white/5' : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled || location.pathname !== '/' ? 'bg-brutal-white border-b border-brutal-black' : 'bg-transparent border-b border-brutal-black/20'
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-6 lg:px-12">
+      <nav className="w-full px-6 lg:px-12">
         <div className="flex justify-between items-center h-24">
           <Link to="/" className="flex items-center">
             <div className="flex items-center gap-3">
@@ -54,12 +54,11 @@ const Header = () => {
                 <img src={settings.logo} alt={companyName} className="h-12 w-auto object-contain" />
               ) : (
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 border border-luxury-gold flex items-center justify-center">
-                    <span className="text-luxury-gold font-display text-xl">M</span>
+                  <div className="w-10 h-10 border border-brutal-black bg-brutal-black text-brutal-white flex items-center justify-center">
+                    <span className="font-display text-xl leading-none pt-1">M</span>
                   </div>
                   <div>
-                    <span className="block text-luxury-white font-display text-lg tracking-wide">{companyName}</span>
-                    <span className="block text-luxury-gold text-xs tracking-[0.3em] uppercase">{tagline}</span>
+                    <span className={`block font-display text-lg tracking-wide ${scrolled || location.pathname !== '/' ? 'text-brutal-black' : 'text-brutal-white'}`}>{companyName}</span>
                   </div>
                 </div>
               )}
@@ -71,36 +70,40 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm tracking-widest uppercase transition-colors ${
-                  isActive(item.href) ? 'text-luxury-gold' : 'text-luxury-white/70 hover:text-luxury-white'
-                }`}
+                className={`nav-link ${
+                  isActive(item.href) ? 'active' : ''
+                } ${scrolled || location.pathname !== '/' ? 'text-brutal-black after:bg-brutal-black' : 'text-brutal-white after:bg-brutal-white'}`}
               >
                 {item.name}
               </Link>
             ))}
             <Link
               to="/contact"
-              className="px-6 py-2.5 bg-luxury-gold text-luxury-black text-sm tracking-widest uppercase hover:bg-luxury-gold-light transition-colors"
+              className={`px-6 h-12 inline-flex items-center justify-center border font-body font-bold text-[13px] tracking-wide uppercase transition-colors ${
+                scrolled || location.pathname !== '/' 
+                ? 'bg-brutal-black text-brutal-white border-brutal-black hover:bg-brutal-white hover:text-brutal-black' 
+                : 'bg-brutal-white text-brutal-black border-brutal-white hover:bg-transparent hover:text-brutal-white'
+              }`}
             >
               Get in Touch
             </Link>
           </div>
 
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden text-luxury-white">
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`lg:hidden ${scrolled || location.pathname !== '/' ? 'text-brutal-black' : 'text-brutal-white'}`}>
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {isMenuOpen && (
-          <div className="lg:hidden py-6 border-t border-white/10">
-            <div className="flex flex-col gap-4">
+          <div className={`lg:hidden border-t-0 p-0 m-0 w-full flex flex-col ${scrolled || location.pathname !== '/' ? 'bg-brutal-white' : 'bg-brutal-black'}`}>
+            <div className="flex flex-col w-full border-t border-brutal-black">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`text-sm tracking-widest uppercase transition-colors ${
-                    isActive(item.href) ? 'text-luxury-gold' : 'text-luxury-white/70 hover:text-luxury-white'
+                  className={`block px-6 py-4 border-b border-brutal-black text-[10px] font-bold tracking-widest uppercase transition-colors hover:bg-brutal-black hover:text-brutal-white ${
+                    scrolled || location.pathname !== '/' ? 'text-brutal-black' : 'text-brutal-white border-brutal-white hover:bg-brutal-white hover:text-brutal-black'
                   }`}
                 >
                   {item.name}
@@ -109,7 +112,11 @@ const Header = () => {
               <Link
                 to="/contact"
                 onClick={() => setIsMenuOpen(false)}
-                className="mt-4 px-6 py-2.5 bg-luxury-gold text-luxury-black text-sm tracking-widest uppercase text-center"
+                className={`block px-6 py-4 w-full h-14 flex items-center bg-brutal-bg font-body font-bold text-[10px] tracking-widest uppercase border-b border-brutal-black hover:bg-brutal-black hover:text-brutal-white transition-colors ${
+                  scrolled || location.pathname !== '/'
+                  ? 'text-brutal-black'
+                  : 'text-brutal-white border-brutal-white hover:bg-brutal-white hover:text-brutal-black'
+                }`}
               >
                 Get in Touch
               </Link>

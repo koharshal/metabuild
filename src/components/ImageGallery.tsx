@@ -32,60 +32,61 @@ const ImageGallery = ({ images, projectName }: ImageGalleryProps) => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-brutal-black">
         {images.map((image, index) => (
           <div
             key={index}
-            className="relative h-64 md:h-72 rounded-xl overflow-hidden cursor-pointer group"
+            className="relative h-64 md:h-72 border-b border-r border-brutal-black overflow-hidden cursor-pointer group bg-brutal-black"
             onClick={() => openLightbox(index)}
           >
             <img
               src={image}
               alt={`${projectName} - Image ${index + 1}`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover transition-all group-hover:opacity-60 grayscale group-hover:grayscale-0"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = fallbackImage;
               }}
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
           </div>
         ))}
       </div>
 
       {/* Lightbox */}
       {lightboxOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-brutal-white flex items-center justify-center border-[10px] border-brutal-black p-4">
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
+            className="absolute top-4 right-4 p-2 text-brutal-black hover:bg-brutal-black hover:text-brutal-white border border-transparent hover:border-brutal-black transition-colors"
           >
             <X className="w-8 h-8" />
           </button>
 
           <button
             onClick={prevImage}
-            className="absolute left-4 p-3 text-white/70 hover:text-white transition-colors bg-white/10 rounded-full hover:bg-white/20"
+            className="absolute left-6 p-4 text-brutal-black font-display text-4xl border border-brutal-black hover:bg-brutal-black hover:text-brutal-white transition-colors"
           >
             ←
           </button>
 
-          <img
-            src={images[currentImage] || fallbackImage}
-            alt={`${projectName} - Image ${currentImage + 1}`}
-            className="max-w-[90vw] max-h-[90vh] object-contain"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = fallbackImage;
-            }}
-          />
+          <div className="w-full h-full max-w-[80vw] max-h-[80vh] border border-brutal-black p-4 bg-brutal-bg flex items-center justify-center">
+            <img
+              src={images[currentImage] || fallbackImage}
+              alt={`${projectName} - Image ${currentImage + 1}`}
+              className="max-w-full max-h-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = fallbackImage;
+              }}
+            />
+          </div>
 
           <button
             onClick={nextImage}
-            className="absolute right-4 p-3 text-white/70 hover:text-white transition-colors bg-white/10 rounded-full hover:bg-white/20"
+            className="absolute right-6 p-4 text-brutal-black font-display text-4xl border border-brutal-black hover:bg-brutal-black hover:text-brutal-white transition-colors"
           >
             →
           </button>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-brutal-black font-bold tracking-widest text-sm border border-brutal-black px-4 py-2">
             {currentImage + 1} / {images.length}
           </div>
         </div>

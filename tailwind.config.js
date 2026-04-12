@@ -17,27 +17,23 @@ module.exports = {
 		},
 		extend: {
 			colors: {
-				luxury: {
-					black: '#0F0F0F',
-					 charcoal: '#141414',
-					dark: '#1A1A1A',
-					gray: '#2A2A2A',
-					light: '#F5F5F5',
-					white: '#FAFAFA',
-					gold: '#D4AF37',
-					'gold-light': '#E5C558',
-					'gold-dark': '#B8962E',
-					muted: '#888888',
+				brutal: {
+					black: '#000000',
+					white: '#ffffff',
+					bg: '#f4f4f4',
 				},
+				admin: {
+					blue: '#1A56DB', // The specific blue seen in the inventory screenshot
+				}
 			},
 			fontFamily: {
-				display: ['Playfair Display', 'serif'],
-				body: ['Montserrat', 'sans-serif'],
+				display: ['"Space Grotesk"', 'sans-serif'],
+				body: ['"Noto Sans"', 'sans-serif'],
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)',
+				lg: '0px',
+				md: '0px',
+				sm: '0px',
 			},
 			keyframes: {
 				'accordion-down': {

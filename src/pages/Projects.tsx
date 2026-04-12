@@ -37,34 +37,34 @@ const Projects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-luxury-black pt-24">
-      <section className="py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <span className="inline-block px-6 py-2 border border-luxury-gold/30 text-luxury-gold text-xs tracking-[0.3em] uppercase mb-6">Our Work</span>
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl text-luxury-white mb-6">Our Projects</h1>
-          <p className="text-luxury-muted max-w-2xl text-lg">Explore our diverse portfolio of residential, commercial, and industrial properties across Nashik and surrounding areas</p>
+    <div className="min-h-screen bg-brutal-bg pt-24">
+      <section className="py-16 lg:py-24 border-b border-brutal-black">
+        <div className="w-full px-6 lg:px-12">
+          <span className="inline-block px-4 py-1 bg-brutal-white text-brutal-black border border-brutal-black font-bold text-[10px] tracking-widest uppercase mb-6">Our Work</span>
+          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl text-brutal-black uppercase tracking-tighter mb-6">Our Projects</h1>
+          <p className="text-brutal-black/80 font-body text-sm max-w-2xl border-l border-brutal-black pl-4">Explore our diverse portfolio of residential, commercial, and industrial properties across Nashik and surrounding areas</p>
         </div>
       </section>
 
-      <section className="pb-8">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <section className="py-8 border-b border-brutal-black bg-brutal-white">
+        <div className="w-full px-6 lg:px-12 flex justify-start">
           <FilterTabs activeFilter={activeFilter} onFilterChange={handleFilterChange} />
         </div>
       </section>
 
-      <section className="pb-24 lg:pb-32">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <section className="pb-24 lg:pb-32 bg-brutal-white">
+        <div className="w-full px-6 lg:px-12 pt-16">
           {loading ? (
-            <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div></div>
+            <div className="flex justify-center py-16"><div className="animate-spin h-12 w-12 border-t-4 border-b-4 border-brutal-black"></div></div>
           ) : filteredProjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-brutal-black">
               {filteredProjects.map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <p className="text-luxury-muted text-lg">No projects found in this category.</p>
+            <div className="text-center py-16 border border-brutal-black bg-brutal-bg">
+              <p className="text-brutal-black font-bold uppercase tracking-widest text-sm">No projects found in this category.</p>
             </div>
           )}
         </div>

@@ -14,27 +14,31 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-screen w-full overflow-hidden border-b border-brutal-black">
       <div className="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80" alt="Luxury Property" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-luxury-black/70 via-luxury-black/50 to-luxury-black/80" />
+        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80" alt="Luxury Property" className="w-full h-full object-cover bg-fixed" style={{ backgroundAttachment: 'fixed' }} />
+        <div className="absolute inset-0 bg-brutal-black/30" />
       </div>
 
-      <div className="absolute top-1/4 left-10 w-px h-32 bg-luxury-gold/30 hidden lg:block" />
-      <div className="absolute top-1/3 left-10 w-24 h-px bg-luxury-gold/30 hidden lg:block" />
+      <div className="absolute top-0 left-10 w-px h-[30vh] bg-brutal-white/50 hidden lg:block" />
+      <div className="absolute top-[30vh] left-0 w-10 h-px bg-brutal-white/50 hidden lg:block" />
 
-      <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
-        <div className="mb-8 animate-fade-up">
-          <span className="inline-block px-6 py-2 border border-luxury-gold/30 text-luxury-gold text-xs tracking-[0.3em] uppercase">{settings.heroTagline}</span>
+      <div className="relative z-10 h-full flex flex-col justify-center items-start text-left px-6 lg:px-24">
+        <div className="mb-4">
+          <span className="inline-block px-4 py-1 bg-brutal-white text-brutal-black font-bold text-xs tracking-widest uppercase">{settings.heroTagline}</span>
         </div>
 
-        <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-luxury-white leading-[0.9] mb-8 animate-fade-up delay-100">{settings.heroTitle}</h1>
+        <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[120px] text-brutal-white leading-[0.9] tracking-tighter mb-8 max-w-5xl uppercase break-words hyphens-auto">
+          {settings.heroTitle}
+        </h1>
 
-        <p className="max-w-xl text-luxury-white/70 font-body text-sm md:text-base tracking-wide leading-relaxed mb-12 animate-fade-up delay-200">{settings.heroSubtitle}</p>
+        <p className="max-w-xl text-brutal-white font-body text-base tracking-wide leading-relaxed mb-12 border-l-2 border-brutal-white pl-6">
+          {settings.heroSubtitle}
+        </p>
 
-        <div className="flex flex-col sm:flex-row gap-6 animate-fade-up delay-300">
-          <Link to="/projects" className="btn-gold">Explore Projects</Link>
-          <Link to="/contact" className="btn-outline-gold">Get in Touch</Link>
+        <div className="flex flex-col w-full sm:w-auto sm:flex-row gap-4">
+          <Link to="/projects" className="btn-brutal bg-brutal-white text-brutal-black hover:bg-brutal-black hover:text-brutal-white border hover:border-brutal-white">Explore Projects</Link>
+          <Link to="/contact" className="btn-outline-brutal border-brutal-white text-brutal-white hover:bg-brutal-white hover:text-brutal-black">Get in Touch</Link>
         </div>
       </div>
     </section>

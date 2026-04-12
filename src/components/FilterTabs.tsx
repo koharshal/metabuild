@@ -17,10 +17,10 @@ const FilterTabs = ({ activeFilter, onFilterChange }: FilterTabsProps) => {
         <button
           key={filter.id}
           onClick={() => onFilterChange(filter.id)}
-          className={`px-6 py-3 text-xs tracking-widest uppercase transition-all duration-300 ${
+          className={`px-6 h-12 border border-brutal-black font-body font-bold text-[12px] tracking-widest uppercase transition-colors ${
             activeFilter === filter.id
-              ? 'bg-luxury-gold text-luxury-black'
-              : 'border border-luxury-gray text-luxury-muted hover:border-luxury-gold hover:text-luxury-white'
+              ? 'bg-brutal-black text-brutal-white'
+              : 'bg-brutal-white text-brutal-black hover:bg-brutal-black hover:text-brutal-white'
           }`}
         >
           {filter.label}

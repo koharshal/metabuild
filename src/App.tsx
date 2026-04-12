@@ -20,8 +20,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-luxury-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
+      <div className="min-h-screen bg-brutal-bg flex items-center justify-center p-4">
+        <div className="bg-brutal-white border border-brutal-black p-12 text-center min-w-[300px]">
+          <div className="animate-spin h-12 w-12 border-4 border-brutal-black border-t-brutal-white mx-auto mb-6"></div>
+          <p className="font-display text-xl text-brutal-black uppercase tracking-tighter">Authenticating</p>
+          <p className="text-[10px] tracking-widest uppercase font-bold text-brutal-black/50 mt-2">Please wait...</p>
+        </div>
       </div>
     );
   }

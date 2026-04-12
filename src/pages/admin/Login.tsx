@@ -31,41 +31,33 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-luxury-black flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-brutal-bg flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-brutal-white border border-brutal-black p-8 sm:p-12">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-16 h-16 border-2 border-luxury-gold/30 flex items-center justify-center">
-              <span className="text-luxury-gold font-display text-3xl">M</span>
-            </div>
-          </div>
-          <h1 className="font-display text-2xl text-luxury-white tracking-widest">METABUILD</h1>
-          <p className="text-luxury-muted text-sm mt-1">Admin Panel</p>
+        <div className="mb-12">
+          <h1 className="font-display text-4xl text-brutal-black uppercase tracking-tighter mb-2">METABUILD</h1>
+          <p className="text-[10px] font-bold tracking-widest text-brutal-black/50 uppercase">Admin Panel</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-luxury-charcoal border border-luxury-gray p-8">
-          <h2 className="text-xl font-display text-luxury-white mb-6 text-center">Sign In</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <div>
+          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-500 text-sm">
+              <div className="p-4 bg-brutal-black text-brutal-white font-bold text-[10px] tracking-widest uppercase text-center border border-brutal-black">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">Admin Email</label>
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">Admin Email</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-muted" />
                 <input
                   type="text"
                   name="username"
                   autoComplete="username"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                  className="w-full h-12 px-4 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors placeholder:text-brutal-black/30 font-bold"
                   placeholder="admin@yourcompany.com"
                   required
                 />
@@ -73,23 +65,22 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-xs tracking-widest text-luxury-muted uppercase mb-2">
+              <label className="block text-[10px] font-bold tracking-widest text-brutal-black uppercase mb-3">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-muted" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3 bg-luxury-black border border-luxury-gray text-luxury-white focus:border-luxury-gold focus:outline-none"
+                  className="w-full h-12 pl-4 pr-12 bg-brutal-bg border border-brutal-black text-brutal-black focus:border-admin-blue focus:border-2 focus:bg-brutal-white outline-none transition-colors placeholder:text-brutal-black/30 font-bold"
                   placeholder="Enter password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-luxury-muted hover:text-luxury-white"
+                  className="absolute right-0 top-0 h-12 w-12 flex items-center justify-center border-l justify-self-end border-brutal-black text-brutal-black hover:bg-admin-blue hover:text-brutal-white hover:border-admin-blue transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -99,16 +90,17 @@ const Login = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 bg-luxury-gold text-luxury-black font-medium hover:bg-luxury-gold-light transition-colors"
+              className="w-full h-14 bg-brutal-black text-brutal-white font-bold text-[10px] tracking-widest uppercase hover:bg-admin-blue transition-colors border border-brutal-black"
             >
-              {submitting ? 'Signing in...' : 'Login'}
+              {submitting ? 'Authenticating...' : 'Sign In'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-luxury-muted text-xs mt-6">
-          Authorized access only
-        </p>
+        <div className="mt-12 pt-8 border-t border-brutal-black flex justify-between items-center text-[10px] font-bold tracking-widest text-brutal-black/50 uppercase">
+          <span>Authorized Access Only</span>
+          <Lock className="w-4 h-4" />
+        </div>
       </div>
     </div>
   );

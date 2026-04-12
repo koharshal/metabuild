@@ -23,31 +23,31 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-luxury-black">
+    <div className="min-h-screen bg-brutal-bg">
       {/* Admin Header */}
-      <header className="bg-luxury-charcoal border-b border-luxury-gray">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <header className="bg-brutal-white border-b border-brutal-black">
+        <div className="w-full px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 border border-luxury-gold/30 flex items-center justify-center">
-                <span className="text-luxury-gold font-display">M</span>
+              <div className="w-10 h-10 border border-brutal-black bg-brutal-black flex items-center justify-center">
+                <span className="text-brutal-white font-display leading-none pt-1">M</span>
               </div>
               <div>
-                <h1 className="text-lg font-display text-luxury-white">Admin Panel</h1>
-                <p className="text-xs text-luxury-muted">Content Management System</p>
+                <h1 className="text-lg font-display text-brutal-black uppercase tracking-tighter">Admin Panel</h1>
+                <p className="text-[10px] uppercase tracking-widest text-brutal-black font-bold">Content Management</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Link
                 to="/"
-                className="flex items-center gap-2 px-4 py-2 border border-luxury-gray text-luxury-muted hover:border-luxury-gold hover:text-luxury-gold transition-colors text-sm"
+                className="flex items-center gap-2 px-4 h-10 border border-brutal-black text-brutal-black font-bold text-[10px] tracking-widest uppercase hover:bg-brutal-black hover:text-brutal-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Website
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 border border-luxury-gray text-luxury-muted hover:border-red-500 hover:text-red-500 transition-colors text-sm"
+                className="flex items-center gap-2 px-4 h-10 border border-brutal-black text-brutal-black font-bold text-[10px] tracking-widest uppercase hover:bg-red-600 hover:text-brutal-white hover:border-red-600 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -57,23 +57,23 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="w-full px-6 py-8">
         <div className="flex gap-8">
           {/* Sidebar */}
           <nav className="w-64 flex-shrink-0">
-            <div className="space-y-2">
+            <div className="flex flex-col border-t border-l border-r border-brutal-black bg-brutal-white">
               {adminNav.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-4 border-b border-brutal-black transition-colors ${
                     isActive(item.href)
-                      ? 'bg-luxury-gold text-luxury-black'
-                      : 'text-luxury-muted hover:bg-luxury-gray hover:text-luxury-white'
+                      ? 'bg-brutal-black text-brutal-white'
+                      : 'text-brutal-black hover:bg-brutal-bg'
                   }`}
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span className="text-sm font-medium">{item.name}</span>
+                  <item.icon className="w-4 h-4" />
+                  <span className="text-[12px] font-bold tracking-widest uppercase">{item.name}</span>
                 </Link>
               ))}
             </div>

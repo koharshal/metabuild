@@ -21,8 +21,8 @@ const Home = () => {
 
   if (!settings) {
     return (
-      <div className="min-h-screen bg-luxury-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
+      <div className="min-h-screen bg-brutal-white flex items-center justify-center">
+        <div className="animate-spin h-12 w-12 border-t-4 border-b-4 border-brutal-black"></div>
       </div>
     );
   }
@@ -50,33 +50,30 @@ const Home = () => {
       <Hero />
 
       {/* Featured Projects */}
-      <section className="py-24 lg:py-32 bg-luxury-black">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <section className="py-24 lg:py-32 bg-brutal-white border-b border-brutal-black">
+        <div className="w-full px-6 lg:px-12">
           {/* Section Header */}
-          <div className="text-center mb-16">
-            <span className="inline-block px-6 py-2 border border-luxury-gold/30 text-luxury-gold text-xs tracking-[0.3em] uppercase mb-6">
+          <div className="mb-16 border-b border-brutal-black pb-8">
+            <span className="inline-block px-4 py-1 bg-brutal-black text-brutal-white text-[10px] uppercase font-bold tracking-widest mb-6 border border-brutal-black">
               Our Portfolio
             </span>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-luxury-white mb-6">
+            <h2 className="font-display text-4xl md:text-5xl lg:text-7xl text-brutal-black uppercase tracking-tighter max-w-4xl">
               Featured Projects
             </h2>
-            <p className="text-luxury-muted max-w-2xl mx-auto">
-              Explore our collection of premium residential, commercial, and industrial properties
-            </p>
           </div>
 
           {/* Project Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-brutal-black mb-16">
             {featuredProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
 
           {/* View All Button */}
-          <div className="text-center">
+          <div className="mt-12 flex justify-start">
             <Link
               to="/projects"
-              className="btn-outline-gold inline-flex items-center gap-3"
+              className="btn-outline-brutal inline-flex items-center gap-3"
             >
               <span>View All Projects</span>
               <ArrowRight className="w-4 h-4" />
@@ -86,52 +83,52 @@ const Home = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-24 lg:py-32 bg-luxury-charcoal">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section className="py-24 lg:py-32 bg-brutal-bg border-b border-brutal-black">
+        <div className="w-full px-6 lg:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-0 items-start">
             {/* Text Content */}
-            <div>
-              <span className="inline-block px-6 py-2 border border-luxury-gold/30 text-luxury-gold text-xs tracking-[0.3em] uppercase mb-6">
+            <div className="lg:pr-16 lg:border-r border-brutal-black lg:min-h-[600px]">
+              <span className="inline-block px-4 py-1 bg-brutal-white text-brutal-black text-[10px] uppercase font-bold tracking-widest mb-6 border border-brutal-black">
                 About Us
               </span>
-              <h2 className="font-display text-4xl md:text-5xl text-luxury-white mb-8">
+              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-brutal-black uppercase tracking-tighter mb-8">
                 {settings?.aboutTitle || 'Excellence in Every Structure'}
               </h2>
-              <p className="text-luxury-muted leading-relaxed mb-6">
+              <p className="text-brutal-black/80 font-body text-sm md:text-base leading-relaxed mb-12 border-l border-brutal-black pl-4">
                 {settings?.aboutDescription || 'Metabuild Realty has been transforming skylines across Nashik and Maharashtra for over 15 years. Our commitment to quality, innovation, and customer satisfaction has made us one of the most trusted names in real estate.'}
               </p>
               <Link
                 to="/about"
-                className="text-luxury-gold text-sm tracking-widest uppercase hover:text-luxury-gold-light transition-colors"
+                className="inline-flex items-center gap-2 text-brutal-black font-bold uppercase text-[12px] tracking-widest border-b border-brutal-black pb-1 hover:bg-brutal-black hover:text-brutal-white transition-colors p-1"
               >
-                Learn More →
+                Learn More <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
             {/* Image Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-0 lg:pl-16 h-full border-t lg:border-t-0 border-brutal-black">
+              <div className="flex flex-col border-b border-l border-r border-brutal-black">
                 <img
                   src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80"
                   alt="Luxury interior"
-                  className="w-full h-64 object-cover"
+                  className="w-full aspect-square object-cover grayscale border-b border-brutal-black"
                 />
                 <img
                   src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80"
                   alt="Modern building"
-                  className="w-full h-40 object-cover"
+                  className="w-full aspect-[4/5] object-cover grayscale"
                 />
               </div>
-              <div className="space-y-4 pt-8">
+              <div className="flex flex-col border-b border-r border-brutal-black">
                 <img
                   src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&q=80"
                   alt="Architecture"
-                  className="w-full h-40 object-cover"
+                  className="w-full aspect-[4/3] object-cover grayscale border-b border-brutal-black"
                 />
                 <img
                   src="https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=600&q=80"
                   alt="Property"
-                  className="w-full h-64 object-cover"
+                  className="w-full aspect-[3/4] object-cover grayscale"
                 />
               </div>
             </div>
@@ -140,28 +137,28 @@ const Home = () => {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-24 lg:py-32 bg-luxury-black">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="text-center mb-16">
-            <span className="inline-block px-6 py-2 border border-luxury-gold/30 text-luxury-gold text-xs tracking-[0.3em] uppercase mb-6">
+      <section className="py-24 lg:py-32 bg-brutal-white border-b border-brutal-black">
+        <div className="w-full px-6 lg:px-12">
+          <div className="mb-16 border-b border-brutal-black pb-8">
+            <span className="inline-block px-4 py-1 bg-brutal-black text-brutal-white text-[10px] uppercase font-bold tracking-widest mb-6 border border-brutal-black">
               Why Choose Us
             </span>
-            <h2 className="font-display text-4xl md:text-5xl text-luxury-white">
+            <h2 className="font-display text-4xl md:text-5xl lg:text-7xl text-brutal-black uppercase tracking-tighter">
               Our Core Values
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-brutal-black">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="p-8 border border-luxury-gray hover:border-luxury-gold/50 transition-all duration-500 group"
+                className="p-8 lg:p-12 border-b border-r border-brutal-black hover:bg-brutal-bg transition-colors"
               >
-                <div className="w-12 h-px bg-luxury-gold mb-6 group-hover:w-full transition-all duration-500" />
-                <h3 className="font-display text-xl text-luxury-white mb-4">
+                <div className="w-12 h-[4px] bg-brutal-black mb-8" />
+                <h3 className="font-display text-2xl lg:text-3xl text-brutal-black uppercase tracking-tight mb-4">
                   {feature.title}
                 </h3>
-                <p className="text-luxury-muted text-sm leading-relaxed">
+                <p className="text-brutal-black/80 font-body text-sm leading-relaxed border-l border-brutal-black pl-4">
                   {feature.description}
                 </p>
               </div>
@@ -171,31 +168,24 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 lg:py-32 bg-luxury-charcoal relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-        </div>
-
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-luxury-white mb-8">
+      <section className="bg-brutal-bg p-6 lg:p-12">
+        <div className="w-full bg-brutal-black relative overflow-hidden border border-brutal-black p-12 lg:py-32 flex flex-col items-center text-center">
+          <h2 className="font-display text-5xl md:text-6xl lg:text-[80px] text-brutal-white uppercase tracking-tighter mb-8 leading-[0.9] max-w-5xl z-10 relative">
             {settings?.ctaTitle || 'Ready to Find Your Dream Property?'}
           </h2>
-          <p className="text-luxury-muted max-w-2xl mx-auto mb-10">
+          <p className="text-brutal-bg font-body text-base max-w-2xl mb-12 z-10 relative">
             {settings?.ctaDescription || 'Contact us today to explore our projects and discover the perfect property for your needs'}
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto z-10 relative">
             <Link
               to="/contact"
-              className="btn-gold"
+              className="btn-brutal bg-brutal-white text-brutal-black hover:bg-brutal-bg hover:text-brutal-black border-brutal-white w-full sm:w-auto"
             >
               Get in Touch
             </Link>
             <Link
               to="/projects"
-              className="btn-outline-gold"
+              className="btn-outline-brutal text-brutal-white border-brutal-white hover:bg-brutal-white hover:text-brutal-black w-full sm:w-auto"
             >
               Browse Projects
             </Link>
