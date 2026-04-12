@@ -132,7 +132,22 @@ export const defaultSiteSettings: SiteSettings = {
 const STORAGE_KEYS = {
   SITE_SETTINGS: 'metabuild_settings',
   PROJECTS: 'metabuild_projects',
+  CACHE_VERSION: 'metabuild_cache_v',
 };
+
+// Bump this when the DB schema or data source changes to bust stale caches
+const CURRENT_CACHE_VERSION = '3';
+
+// Auto-clear stale localStorage on version mismatch
+if (typeof window !== 'undefined') {
+  const storedVersion = localStorage.getItem(STORAGE_KEYS.CACHE_VERSION);
+  if (storedVersion !== CURRENT_CACHE_VERSION) {
+    localStorage.removeItem(STORAGE_KEYS.SITE_SETTINGS);
+    localStorage.removeItem(STORAGE_KEYS.PROJECTS);
+    localStorage.setItem(STORAGE_KEYS.CACHE_VERSION, CURRENT_CACHE_VERSION);
+    console.log('[CMS] Cache cleared — version bump to', CURRENT_CACHE_VERSION);
+  }
+}
 
 const getAuthSession = async () => {
   const { data, error } = await supabase.auth.getSession();
@@ -272,20 +287,24 @@ export const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise
 };
 
 export const getProjects = async (): Promise<Project[]> => {
-  // Select all fields needed — include both cover_image and save_image for compatibility
   const { data, error } = await supabase
     .from(TABLES.PROJECTS)
-    .select('id, name, slug, category, status, location, cover_image, save_image, specs')
-    .order('created_at', { ascending: true });
+    // Only select columns that actually exist in the table
+    .select('id, name, slug, category, status, location, save_image, specs')
+    // Order by id (always exists); created_at may not be in schema
+    .order('id', { ascending: true });
 
-  if (error || !data) {
+  if (error || !data || data.length === 0) {
     if (error) {
       console.warn(formatBackendError('Failed to load projects from backend', error));
     }
+    // Only use local cache as a fallback – clear it first if empty so we
+    // don't surface stale mock data after a successful redeploy
     return readLocalProjects();
   }
 
   const projects = data.map(toProject);
+  // Overwrite any stale cached data with fresh results from Supabase
   writeLocalProjects(projects);
   return projects;
 };
